@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - property:
+      name: uuid_type
+      value: uuid
+      dbms: postgresql
+  - property:
+      name: uuid_function
+      value: uuid_generate_v4()
+      dbms: postgresql
+  - logicalFilePath: classpath:db/changelog/db.changelog-master.yaml
+  - changeSet:
+      id: 1
+      author: daniel
+      changes:
+        - createTable:
+            tableName: urls
+            columns:
+              - column:
+                  name: id
+                  type: ${uuid_type}
+                  defaultValueComputed: ${uuid_function}
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: url
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
