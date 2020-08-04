@@ -1,37 +1,78 @@
 package com.qurlapi.qurlapi.controller;
 
-import com.qurlapi.qurlapi.model.Url;
-import com.qurlapi.qurlapi.service.UrlService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.qurlapi.qurlapi.model.QUrl;
+import com.qurlapi.qurlapi.service.QUrlService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(path = {"/api"})
 public class QUrlController {
 
-    private final UrlService urlService;
+    private final QUrlService qUrlService;
 
     @Autowired
-    public QUrlController(final UrlService urlService) {
-        this.urlService = urlService;
+    public QUrlController(final QUrlService qUrlService) {
+        this.qUrlService = qUrlService;
     }
 
-    @GetMapping(path = {"/urls"})
-    public List<Url> urls() {
-        return urlService.getAllUrls();
+    @GetMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<?> urls() throws JsonProcessingException {
+        final ObjectMapper mapper = new ObjectMapper();
+        return ResponseEntity.
+                ok(mapper.writeValueAsString(qUrlService.getAllQUrls()));
     }
 
-    @PostMapping(path = {"/urls"})
-    public ResponseEntity<?> addUrl(@RequestBody final Url url) {
-        if (url.getUrl() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    @ResponseBody
+    @PostMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> addUrl(@RequestBody final QUrl qUrl) throws JsonProcessingException {
+        final ObjectMapper mapper = new ObjectMapper();
+        final ResponseEntity.BodyBuilder badRequest =
+                ResponseEntity.status(HttpStatus.BAD_REQUEST);
+
+        final String stamp = qUrl.getStamp();
+
+        if (qUrl.getUrl() == null) {
+            return badRequest.body("{\"message\":\"Url is empty :v\"}");
         }
 
-        urlService.addUrl(url);
-        return ResponseEntity.ok(url);
+        if (qUrlService.findQUrlByStamp(stamp) != null) {
+            return badRequest.body("{\"message\":\"Stamp taken!\"}");
+        }
+
+        qUrlService.addQUrl(qUrl);
+        return ResponseEntity.ok(mapper.writeValueAsString(qUrl));
+    }
+
+    @GetMapping(path = {"/urls/{stamp}"})
+    public ResponseEntity<?> redirect(@PathVariable final String stamp) {
+        final QUrl qurl = qUrlService.findQUrlByStamp(stamp);
+        final ResponseEntity.BodyBuilder response =
+                ResponseEntity.status(HttpStatus.FOUND);
+
+        if (qurl == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        final String url = qurl.getUrl();
+        qUrlService.removeQUrl(qurl);
+
+        if (!url.startsWith("http")) {
+            return response.header(HttpHeaders.LOCATION, "http://" + url).build();
+        }
+
+        return response.header(HttpHeaders.LOCATION, url).build();
+    }
+
+    @GetMapping(path = {"/purge"})
+    public void purge() {
+        qUrlService.purge();
     }
 }
