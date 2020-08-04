@@ -28,3 +28,15 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
+  - changeSet:
+      id: 2
+      author: daniel
+      changes:
+        - addColumn:
+            tableName: urls
+            columns:
+              - column:
+                  name: stamp
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
