@@ -112,4 +112,17 @@ public class QUrlServiceTest {
         final int actualSize = qUrlService.getAllQUrls().size();
         assertEquals(expectedSize, actualSize);
     }
+
+    @Test
+    public void shouldCreateJson() {
+        // given
+        final QUrl qUrl = QUrl.builder().stamp("stamp").url("url").build();
+        final String expected = "{\"url\":\"url\",\"stamp\":\"stamp\"}";
+
+        // when
+        final String actual = qUrlService.createJson(qUrl);
+
+        // then
+        assertEquals(expected, actual);
+    }
 }
