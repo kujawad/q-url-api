@@ -1,9 +1,12 @@
 package com.qurlapi.qurlapi.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qurlapi.qurlapi.dao.QUrlRepository;
 import com.qurlapi.qurlapi.model.QUrl;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -47,5 +50,18 @@ public class QUrlService {
 
     public void purge() {
         qUrlRepository.deleteAll();
+    }
+
+    public String createJson(final QUrl qUrl) {
+        final ObjectMapper mapper = new ObjectMapper();
+
+        String response;
+
+        try {
+            response = mapper.writeValueAsString(qUrl);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return response;
     }
 }

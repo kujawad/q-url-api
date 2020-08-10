@@ -7,6 +7,7 @@ import com.qurlapi.qurlapi.model.QUrl;
 import com.qurlapi.qurlapi.util.QUrlTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -25,9 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class QUrlControllerTest {
 
     @Autowired
-    private QUrlController qUrlController;
-
-    @Autowired
     private QUrlRepository qUrlRepository;
 
     @Autowired
@@ -42,7 +40,6 @@ public class QUrlControllerTest {
     @Test
     public void shouldGetAllQUrls() {
         // given
-        final String URL = "/api/urls";
         final HttpStatus expectedStatus = HttpStatus.OK;
         final String expectedBody = expectedGetAllQUrls();
 

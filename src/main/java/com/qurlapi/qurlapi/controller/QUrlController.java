@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qurlapi.qurlapi.model.QUrl;
 import com.qurlapi.qurlapi.service.QUrlService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ public class QUrlController {
         this.qUrlService = qUrlService;
     }
 
+    @CrossOrigin
     @GetMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<?> urls() throws JsonProcessingException {
@@ -30,10 +32,10 @@ public class QUrlController {
                 ok(mapper.writeValueAsString(qUrlService.getAllQUrls()));
     }
 
+    @CrossOrigin
     @ResponseBody
     @PostMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> addUrl(@RequestBody final QUrl qUrl) throws JsonProcessingException {
-        final ObjectMapper mapper = new ObjectMapper();
+    public ResponseEntity<String> addUrl(@RequestBody final QUrl qUrl) {
         final ResponseEntity.BodyBuilder badRequest =
                 ResponseEntity.status(HttpStatus.BAD_REQUEST);
 
@@ -43,14 +45,23 @@ public class QUrlController {
             return badRequest.body("{\"message\":\"Url is empty :v\"}");
         }
 
-        if (qUrlService.findQUrlByStamp(stamp) != null) {
-            return badRequest.body("{\"message\":\"Stamp taken!\"}");
+        if (stamp != null) {
+            if (qUrlService.findQUrlByStamp(stamp) != null) {
+                return badRequest.body("{\"message\":\"Stamp taken!\"}");
+            }
+
+            if (!StringUtils.isAlphanumeric(stamp)) {
+                return badRequest.body("{\"message\":\"Stamp contains non-alphanumeric characters!\"}");
+            }
         }
 
         qUrlService.addQUrl(qUrl);
-        return ResponseEntity.ok(mapper.writeValueAsString(qUrl));
+        final String response = qUrlService.createJson(qUrl);
+
+        return ResponseEntity.ok(response);
     }
 
+    @CrossOrigin
     @GetMapping(path = {"/urls/{stamp}"})
     public ResponseEntity<?> redirect(@PathVariable final String stamp) {
         final QUrl qurl = qUrlService.findQUrlByStamp(stamp);
