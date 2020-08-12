@@ -6,7 +6,6 @@ import com.qurlapi.qurlapi.model.QUrl;
 import com.qurlapi.qurlapi.service.QUrlService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
@@ -57,23 +56,17 @@ public class QUrlController {
 
     @CrossOrigin
     @GetMapping(path = {"/urls/{stamp}"})
-    public ResponseEntity<?> redirect(@PathVariable final String stamp) {
+    public ResponseEntity<?> link(@PathVariable final String stamp) {
         final QUrl qurl = qUrlService.findQUrlByStamp(stamp);
-        final ResponseEntity.BodyBuilder response =
-                ResponseEntity.status(HttpStatus.FOUND);
 
         if (qurl == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        final String url = qurl.getUrl();
+        final String response = qUrlService.generateLink(qurl.getUrl());
         qUrlService.removeQUrl(qurl);
 
-        if (!url.startsWith("http")) {
-            return response.header(HttpHeaders.LOCATION, "http://" + url).build();
-        }
-
-        return response.header(HttpHeaders.LOCATION, url).build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = {"/purge"})

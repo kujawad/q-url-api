@@ -2,6 +2,7 @@ package com.qurlapi.qurlapi.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.qurlapi.qurlapi.dao.QUrlRepository;
 import com.qurlapi.qurlapi.model.QUrl;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -29,8 +30,14 @@ public class QUrlService {
     }
 
     public void addQUrl(final QUrl qUrl) {
+        final String url = qUrl.getUrl();
+
         if (StringUtils.isEmpty(qUrl.getStamp())) {
             qUrl.setStamp(RandomStringUtils.randomAlphanumeric(STAMP_LENGTH));
+        }
+
+        if (!url.startsWith("http")) {
+            qUrl.setUrl("http://" + url);
         }
 
         qUrlRepository.save(qUrl);
@@ -63,5 +70,22 @@ public class QUrlService {
             throw new RuntimeException(e);
         }
         return response;
+    }
+
+    public String generateLink(final String url) {
+        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectNode rootNode = mapper.createObjectNode();
+
+        rootNode.put("rlink", url);
+
+        String link;
+
+        try {
+            link = mapper.writeValueAsString(rootNode);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return link;
     }
 }
