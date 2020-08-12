@@ -23,6 +23,7 @@ public class QUrlController {
         this.qUrlService = qUrlService;
     }
 
+    @CrossOrigin
     @GetMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<?> urls() throws JsonProcessingException {
@@ -31,6 +32,7 @@ public class QUrlController {
                 ok(mapper.writeValueAsString(qUrlService.getAllQUrls()));
     }
 
+    @CrossOrigin
     @ResponseBody
     @PostMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> addUrl(@RequestBody final QUrl qUrl) {
@@ -59,6 +61,7 @@ public class QUrlController {
         return ResponseEntity.ok(response);
     }
 
+    @CrossOrigin
     @GetMapping(path = {"/urls/{stamp}"})
     public ResponseEntity<?> redirect(@PathVariable final String stamp) {
         final QUrl qurl = qUrlService.findQUrlByStamp(stamp);
