@@ -41,18 +41,12 @@ public class QUrlController {
 
         final String stamp = qUrl.getStamp();
 
-        if (qUrl.getUrl() == null) {
+        if (StringUtils.isEmpty(qUrl.getUrl())) {
             return badRequest.body("{\"message\":\"Url is empty :v\"}");
         }
 
-        if (stamp != null) {
-            if (qUrlService.findQUrlByStamp(stamp) != null) {
-                return badRequest.body("{\"message\":\"Stamp taken!\"}");
-            }
-
-            if (!StringUtils.isAlphanumeric(stamp)) {
-                return badRequest.body("{\"message\":\"Stamp contains non-alphanumeric characters!\"}");
-            }
+        if (qUrlService.findQUrlByStamp(stamp) != null) {
+            return badRequest.body("{\"message\":\"Stamp taken!\"}");
         }
 
         qUrlService.addQUrl(qUrl);
