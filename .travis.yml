@@ -1,10 +1,6 @@
 language: java
 services:
   - postgresql
-deploy:
-  provider: heroku
-  api_key:
-    secure: JhRRJJM6Z+NHWXWimRWwHc1Oz+kNC92CH/9lisaBo3aDOvDQxLLT5bWJHRxRdW3SFilXK6Owlh61gRH2ovsvEZSpNNCq/VrNAyrzo7jh/KztLk8CYhcOfODxzWaM2EKb5AaCjfuL3aeRYW91IH/xwtudPjtHQTNGF8UnFaEpYHa5dfxAcEHWh8KEO1Zi4LBXUmu7GoXMhYUL0DTBzq3nmov3ICu5lXXTFh5mrIcIHz3YyGo1SgalhJmJePQ2cRkm+bvvO9mZO7Wv5WjMdy6LCNibBSjGwp41+fI8wOFYr7YxhdCr9t0mON2y1S84OCRe+De4Fqf3843bL/8dlDSRNi1kORJZ4FpjwfmUnlO2p3il555FbwTnqbJQf4IRofZPNhtvDwUAajg8j0rdmSODWiH876sFc5d0W3Va0WcXMlmcBHNFZP2KKTCJRE4S43GSgi16T+tjUxbC4sWAtfhANlH2+5uS/RUMxiwfnkNC/Zg6IXadlsjZl2dFMg/hxFMeFdkSqi7AHrYc6voE1wGSyPpSG41C1Lbn6pFvMTO5GaEcZ0Sx996AVWd/73b4+ErzjjLJSVF/MyzZgz3FPydT8ecWe2cBuqUBJeJ0J6IZs8DQQsdRtwoGkHd1rP6YweuUUg5oFC3tGmsk7nrcr9HK23utTs+V3hIJibwcwrCc1Vc=
 before_script:
   - psql -c 'CREATE DATABASE "qrl-api";' -U postgres
   - psql -d "qrl-api" -c "CREATE USER dev WITH PASSWORD 'dev';" -U postgres
