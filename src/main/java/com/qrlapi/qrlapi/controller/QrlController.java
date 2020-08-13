@@ -1,9 +1,9 @@
-package com.qurlapi.qurlapi.controller;
+package com.qrlapi.qrlapi.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.qurlapi.qurlapi.model.QUrl;
-import com.qurlapi.qurlapi.service.QUrlService;
+import com.qrlapi.qrlapi.model.Qrl;
+import com.qrlapi.qrlapi.service.QrlService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = {"/api"})
-public class QUrlController {
+public class QrlController {
 
-    private final QUrlService qUrlService;
+    private final QrlService qrlService;
 
     @Autowired
-    public QUrlController(final QUrlService qUrlService) {
-        this.qUrlService = qUrlService;
+    public QrlController(final QrlService qrlService) {
+        this.qrlService = qrlService;
     }
 
     @CrossOrigin
@@ -28,28 +28,28 @@ public class QUrlController {
     public ResponseEntity<?> urls() throws JsonProcessingException {
         final ObjectMapper mapper = new ObjectMapper();
         return ResponseEntity.
-                ok(mapper.writeValueAsString(qUrlService.getAllQUrls()));
+                ok(mapper.writeValueAsString(qrlService.getAllQrls()));
     }
 
     @CrossOrigin
     @ResponseBody
     @PostMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> addUrl(@RequestBody final QUrl qUrl) {
+    public ResponseEntity<String> addUrl(@RequestBody final Qrl qrl) {
         final ResponseEntity.BodyBuilder badRequest =
                 ResponseEntity.status(HttpStatus.BAD_REQUEST);
 
-        final String stamp = qUrl.getStamp();
+        final String stamp = qrl.getStamp();
 
-        if (StringUtils.isEmpty(qUrl.getUrl())) {
+        if (StringUtils.isEmpty(qrl.getUrl())) {
             return badRequest.body("{\"message\":\"Url is empty :v\"}");
         }
 
-        if (qUrlService.findQUrlByStamp(stamp) != null) {
+        if (qrlService.findQrlByStamp(stamp) != null) {
             return badRequest.body("{\"message\":\"Stamp taken!\"}");
         }
 
-        qUrlService.addQUrl(qUrl);
-        final String response = qUrlService.createJson(qUrl);
+        qrlService.addQrl(qrl);
+        final String response = qrlService.createJson(qrl);
 
         return ResponseEntity.ok(response);
     }
@@ -57,20 +57,20 @@ public class QUrlController {
     @CrossOrigin
     @GetMapping(path = {"/urls/{stamp}"})
     public ResponseEntity<?> link(@PathVariable final String stamp) {
-        final QUrl qurl = qUrlService.findQUrlByStamp(stamp);
+        final Qrl qrl = qrlService.findQrlByStamp(stamp);
 
-        if (qurl == null) {
+        if (qrl == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        final String response = qUrlService.generateLink(qurl.getUrl());
-        qUrlService.removeQUrl(qurl);
+        final String response = qrlService.generateLink(qrl.getUrl());
+        qrlService.removeQrl(qrl);
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = {"/purge"})
     public void purge() {
-        qUrlService.purge();
+        qrlService.purge();
     }
 }

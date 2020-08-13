@@ -1,4 +1,4 @@
-package com.qurlapi.qurlapi.model;
+package com.qrlapi.qrlapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Table(name = "urls")
-public class QUrl {
+public class Qrl {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

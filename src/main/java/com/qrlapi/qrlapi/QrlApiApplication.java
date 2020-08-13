@@ -1,13 +1,13 @@
-package com.qurlapi.qurlapi;
+package com.qrlapi.qrlapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class QUrlApiApplication {
+public class QrlApiApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(QUrlApiApplication.class, args);
+        SpringApplication.run(QrlApiApplication.class, args);
     }
 
 }
