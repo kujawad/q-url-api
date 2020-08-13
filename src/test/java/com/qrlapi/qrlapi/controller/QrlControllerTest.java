@@ -1,13 +1,12 @@
-package com.qurlapi.qurlapi.controller;
+package com.qrlapi.qrlapi.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.qurlapi.qurlapi.dao.QUrlRepository;
-import com.qurlapi.qurlapi.model.QUrl;
-import com.qurlapi.qurlapi.util.QUrlTestUtils;
+import com.qrlapi.qrlapi.dao.QrlRepository;
+import com.qrlapi.qrlapi.model.Qrl;
+import com.qrlapi.qrlapi.util.QrlTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -16,54 +15,54 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.UUID;
 
-import static com.qurlapi.qurlapi.util.QUrlTestUtils.expectedGetAllQUrls;
-import static com.qurlapi.qurlapi.util.QUrlTestUtils.qUrls;
+import static com.qrlapi.qrlapi.util.QrlTestUtils.expectedGetAllQrls;
+import static com.qrlapi.qrlapi.util.QrlTestUtils.qrls;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class QUrlControllerTest {
+public class QrlControllerTest {
 
     @Autowired
-    private QUrlRepository qUrlRepository;
+    private QrlRepository qrlRepository;
 
     @Autowired
     private TestRestTemplate restTemplate;
 
     @BeforeEach
     public void before() {
-        qUrlRepository.deleteAll();
-        qUrlRepository.saveAll(qUrls());
+        qrlRepository.deleteAll();
+        qrlRepository.saveAll(qrls());
     }
 
     @Test
-    public void shouldGetAllQUrls() {
+    public void shouldGetAllQrls() {
         // given
         final HttpStatus expectedStatus = HttpStatus.OK;
-        final String expectedBody = expectedGetAllQUrls();
+        final String expectedBody = expectedGetAllQrls();
 
         // when
-        final ResponseEntity<String> qUrls = restTemplate
-                .getForEntity(QUrlTestUtils.URL, String.class);
+        final ResponseEntity<String> qrls = restTemplate
+                .getForEntity(QrlTestUtils.URL, String.class);
 
         // then
-        final HttpStatus actualStatus = qUrls.getStatusCode();
-        final String actualBody = qUrls.getBody();
+        final HttpStatus actualStatus = qrls.getStatusCode();
+        final String actualBody = qrls.getBody();
 
         assertEquals(expectedStatus, actualStatus);
         assertEquals(expectedBody, actualBody);
     }
 
     @Test
-    public void shouldAddQUrlWithEmptyStamp() throws JsonProcessingException {
+    public void shouldAddQrlWithEmptyStamp() throws JsonProcessingException {
         // given
         final ObjectMapper mapper = new ObjectMapper();
-        final QUrl qUrl = QUrl.builder()
+        final Qrl qrl = Qrl.builder()
                 .id(UUID.randomUUID())
                 .url("https://example.com")
                 .build();
-        final String expectedBody = mapper.writeValueAsString(qUrl);
+        final String expectedBody = mapper.writeValueAsString(qrl);
 
         final HttpStatus expectedStatus = HttpStatus.OK;
         final HttpHeaders headers = new HttpHeaders();
@@ -74,7 +73,7 @@ public class QUrlControllerTest {
 
         // when
         final ResponseEntity<String> response =
-                restTemplate.postForEntity(QUrlTestUtils.URL, requestBody, String.class);
+                restTemplate.postForEntity(QrlTestUtils.URL, requestBody, String.class);
 
         // then
         final HttpStatus actualStatus = response.getStatusCode();
@@ -85,16 +84,16 @@ public class QUrlControllerTest {
     }
 
     @Test
-    public void shouldAddQUrlWithStamp() throws JsonProcessingException {
+    public void shouldAddQrlWithStamp() throws JsonProcessingException {
         // given
         final ObjectMapper mapper = new ObjectMapper();
         final String stamp = "testStamp";
-        final QUrl qUrl = QUrl.builder()
+        final Qrl qrl = Qrl.builder()
                 .id(UUID.randomUUID())
                 .url("https://example.com")
                 .stamp(stamp)
                 .build();
-        final String expectedBody = mapper.writeValueAsString(qUrl);
+        final String expectedBody = mapper.writeValueAsString(qrl);
 
         final HttpStatus expectedStatus = HttpStatus.OK;
         final HttpHeaders headers = new HttpHeaders();
@@ -105,7 +104,7 @@ public class QUrlControllerTest {
 
         // when
         final ResponseEntity<String> response =
-                restTemplate.postForEntity(QUrlTestUtils.URL, requestBody, String.class);
+                restTemplate.postForEntity(QrlTestUtils.URL, requestBody, String.class);
 
         // then
         final HttpStatus actualStatus = response.getStatusCode();

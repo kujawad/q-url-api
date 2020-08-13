@@ -1,13 +1,12 @@
-package com.qurlapi.qurlapi.service;
+package com.qrlapi.qrlapi.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.qurlapi.qurlapi.dao.QUrlRepository;
-import com.qurlapi.qurlapi.model.QUrl;
+import com.qrlapi.qrlapi.dao.QrlRepository;
+import com.qrlapi.qrlapi.model.Qrl;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -15,57 +14,57 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class QUrlService {
+public class QrlService {
 
     private static final int STAMP_LENGTH = 7;
-    private final QUrlRepository qUrlRepository;
+    private final QrlRepository qrlRepository;
 
     @Autowired
-    public QUrlService(final QUrlRepository qUrlRepository) {
-        this.qUrlRepository = qUrlRepository;
+    public QrlService(final QrlRepository qrlRepository) {
+        this.qrlRepository = qrlRepository;
     }
 
-    public List<QUrl> getAllQUrls() {
-        return qUrlRepository.findAll();
+    public List<Qrl> getAllQrls() {
+        return qrlRepository.findAll();
     }
 
-    public void addQUrl(final QUrl qUrl) {
-        final String url = qUrl.getUrl();
+    public void addQrl(final Qrl qrl) {
+        final String url = qrl.getUrl();
 
-        if (StringUtils.isEmpty(qUrl.getStamp())) {
-            qUrl.setStamp(RandomStringUtils.randomAlphanumeric(STAMP_LENGTH));
+        if (StringUtils.isEmpty(qrl.getStamp())) {
+            qrl.setStamp(RandomStringUtils.randomAlphanumeric(STAMP_LENGTH));
         }
 
         if (!url.startsWith("http")) {
-            qUrl.setUrl("http://" + url);
+            qrl.setUrl("http://" + url);
         }
 
-        qUrlRepository.save(qUrl);
+        qrlRepository.save(qrl);
     }
 
-    public QUrl findQUrlByStamp(final String stamp) {
-        return qUrlRepository.findByStamp(stamp);
+    public Qrl findQrlByStamp(final String stamp) {
+        return qrlRepository.findByStamp(stamp);
     }
 
-    public QUrl findQUrlById(final UUID uuid) {
-        return qUrlRepository.findById(uuid).orElse(null);
+    public Qrl findQrlById(final UUID uuid) {
+        return qrlRepository.findById(uuid).orElse(null);
     }
 
-    public void removeQUrl(final QUrl qUrl) {
-        qUrlRepository.delete(qUrl);
+    public void removeQrl(final Qrl qrl) {
+        qrlRepository.delete(qrl);
     }
 
     public void purge() {
-        qUrlRepository.deleteAll();
+        qrlRepository.deleteAll();
     }
 
-    public String createJson(final QUrl qUrl) {
+    public String createJson(final Qrl qrl) {
         final ObjectMapper mapper = new ObjectMapper();
 
         String response;
 
         try {
-            response = mapper.writeValueAsString(qUrl);
+            response = mapper.writeValueAsString(qrl);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
