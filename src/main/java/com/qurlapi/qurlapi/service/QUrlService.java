@@ -7,7 +7,6 @@ import com.qurlapi.qurlapi.dao.QUrlRepository;
 import com.qurlapi.qurlapi.model.QUrl;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -18,6 +17,11 @@ import java.util.UUID;
 public class QUrlService {
 
     private static final int STAMP_LENGTH = 7;
+
+    private static final int MIN_USAGES = 0;
+    private static final int DEFAULT_USAGES = 3;
+    private static final int MAX_USAGES = 100;
+
     private final QUrlRepository qUrlRepository;
 
     @Autowired
@@ -31,6 +35,7 @@ public class QUrlService {
 
     public void addQUrl(final QUrl qUrl) {
         final String url = qUrl.getUrl();
+        final int usages = qUrl.getUsages();
 
         if (StringUtils.isEmpty(qUrl.getStamp())) {
             qUrl.setStamp(RandomStringUtils.randomAlphanumeric(STAMP_LENGTH));
@@ -38,6 +43,12 @@ public class QUrlService {
 
         if (!url.startsWith("http")) {
             qUrl.setUrl("http://" + url);
+        }
+
+        if (usages <= MIN_USAGES || usages > MAX_USAGES) {
+            qUrl.setUsages(DEFAULT_USAGES);
+        } else {
+            qUrl.setUsages(usages);
         }
 
         qUrlRepository.save(qUrl);
@@ -72,7 +83,8 @@ public class QUrlService {
         return response;
     }
 
-    public String generateLink(final String url) {
+    public String generateLink(final QUrl qUrl) {
+        final String url = qUrl.getUrl();
         final ObjectMapper mapper = new ObjectMapper();
         final ObjectNode rootNode = mapper.createObjectNode();
 
@@ -84,6 +96,13 @@ public class QUrlService {
             link = mapper.writeValueAsString(rootNode);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
+        }
+
+        qUrl.setUsages(qUrl.getUsages() - 1);
+        qUrlRepository.save(qUrl);
+
+        if (qUrl.getUsages() == 0) {
+            qUrlRepository.delete(qUrl);
         }
 
         return link;

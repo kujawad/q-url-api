@@ -40,3 +40,16 @@ databaseChangeLog:
                   type: varchar(50)
                   constraints:
                     nullable: true
+  - changeSet:
+      id: 3
+      author: daniel
+      changes:
+        - addColumn:
+            tableName: urls
+            columns:
+              - column:
+                  name: usages
+                  type: int
+                  constraints:
+                    nullable: false
+

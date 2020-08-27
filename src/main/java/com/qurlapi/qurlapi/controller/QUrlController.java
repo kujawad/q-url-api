@@ -56,19 +56,19 @@ public class QUrlController {
 
     @CrossOrigin
     @GetMapping(path = {"/urls/{stamp}"})
-    public ResponseEntity<?> link(@PathVariable final String stamp) {
+    public ResponseEntity<String> link(@PathVariable final String stamp) {
         final QUrl qurl = qUrlService.findQUrlByStamp(stamp);
 
         if (qurl == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        final String response = qUrlService.generateLink(qurl.getUrl());
-        qUrlService.removeQUrl(qurl);
+        final String response = qUrlService.generateLink(qurl);
 
         return ResponseEntity.ok(response);
     }
 
+    // TODO: JWT authentication for this endpoint
     @GetMapping(path = {"/purge"})
     public void purge() {
         qUrlService.purge();
