@@ -28,7 +28,14 @@ public class QUrlRepositoryTest {
     @Test
     public void shouldSaveQUrl() {
         // given
-        final QUrl expected = QUrl.builder().stamp("stamp").url("url").build();
+        final String stamp = "stamp";
+        final String url = "url";
+        final int usages = 3;
+        final QUrl expected = QUrl.builder()
+                .stamp(stamp)
+                .url(url)
+                .usages(usages)
+                .build();
 
         // when
         qUrlRepository.save(expected);
@@ -56,7 +63,13 @@ public class QUrlRepositoryTest {
     public void shouldFindQUrlByStamp() {
         // given
         final String stamp = "stamp";
-        final QUrl expected = QUrl.builder().stamp(stamp).url("url").build();
+        final String url = "url";
+        final int usages = 3;
+        final QUrl expected = QUrl.builder()
+                .stamp(stamp)
+                .url(url)
+                .usages(usages)
+                .build();
 
         // when
         qUrlRepository.save(expected);
@@ -69,7 +82,15 @@ public class QUrlRepositoryTest {
     @Test
     public void shouldDeleteOneQUrl() {
         // given
-        final QUrl qUrl = QUrl.builder().stamp("stamp").url("url").build();
+        final String stamp = "stamp";
+        final String url = "url";
+        final int usages = 3;
+        final QUrl qUrl = QUrl.builder()
+                .stamp(stamp)
+                .url(url)
+                .usages(usages)
+                .build();
+
         qUrlRepository.save(qUrl);
 
         // when

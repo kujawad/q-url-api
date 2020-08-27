@@ -24,4 +24,7 @@ public class QUrl {
 
     @Column(name = "stamp", length = 50)
     private String stamp;
+
+    @Column(name = "usages")
+    private int usages;
 }
