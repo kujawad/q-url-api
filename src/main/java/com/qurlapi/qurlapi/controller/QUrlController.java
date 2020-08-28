@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qurlapi.qurlapi.model.QUrl;
 import com.qurlapi.qurlapi.service.QUrlService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = {"/api"})
 public class QUrlController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(QUrlController.class);
     private final QUrlService qUrlService;
 
     @Autowired
@@ -49,6 +52,8 @@ public class QUrlController {
         }
 
         qUrlService.addQUrl(qUrl);
+        LOGGER.info("QUrl '{}' has been successfully added", qUrl);
+
         final String response = qUrlService.createJson(qUrl);
 
         return ResponseEntity.ok(response);
@@ -60,10 +65,12 @@ public class QUrlController {
         final QUrl qurl = qUrlService.findQUrlByStamp(stamp);
 
         if (qurl == null) {
+            LOGGER.info("QUrl with stamp: '{}' not found", stamp);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
         final String response = qUrlService.generateLink(qurl);
+        LOGGER.info("Link has been generated successfully for '{}'", qurl);
 
         return ResponseEntity.ok(response);
     }
