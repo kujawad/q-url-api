@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.qurlapi.qurlapi.dao.QUrlRepository;
 import com.qurlapi.qurlapi.model.QUrl;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -15,6 +17,8 @@ import java.util.UUID;
 
 @Service
 public class QUrlService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(QUrlService.class);
 
     private static final int STAMP_LENGTH = 7;
 
@@ -78,6 +82,7 @@ public class QUrlService {
         try {
             response = mapper.writeValueAsString(qUrl);
         } catch (JsonProcessingException e) {
+            LOGGER.error("Could not parse '{}'", qUrl);
             throw new RuntimeException(e);
         }
         return response;
@@ -95,6 +100,7 @@ public class QUrlService {
         try {
             link = mapper.writeValueAsString(rootNode);
         } catch (JsonProcessingException e) {
+            LOGGER.error("Could not parse url '{}'", url);
             throw new RuntimeException(e);
         }
 
@@ -102,6 +108,7 @@ public class QUrlService {
         qUrlRepository.save(qUrl);
 
         if (qUrl.getUsages() == 0) {
+            LOGGER.info("'{}' reached 0 usages. Removing from database.", qUrl);
             qUrlRepository.delete(qUrl);
         }
 
