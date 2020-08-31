@@ -1,6 +1,9 @@
 package com.qurlapi.qurlapi.service;
 
-import com.qurlapi.qurlapi.model.QUrl;
+import com.qurlapi.qurlapi.dto.request.QUrlRequest;
+import com.qurlapi.qurlapi.dto.response.LinkResponse;
+import com.qurlapi.qurlapi.dto.response.QUrlResponse;
+import com.qurlapi.qurlapi.util.QUrlTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static com.qurlapi.qurlapi.util.QUrlTestUtils.qUrls;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -31,13 +33,14 @@ public class QUrlServiceTest {
     public void shouldFindAllQUrls() {
         // given
         final int expectedSize = 3;
-        final List<QUrl> qUrls = qUrls();
+        final List<QUrlRequest> qUrls = QUrlTestUtils.qUrlRequests();
 
-        // when
         IntStream.range(0, qUrls.size()).forEach(i -> qUrlService.addQUrl(qUrls.get(i)));
 
-        // then
+        // when
         final int actualSize = qUrlService.getAllQUrls().size();
+
+        // then
         assertEquals(expectedSize, actualSize);
     }
 
@@ -45,9 +48,9 @@ public class QUrlServiceTest {
     public void shouldAddQUrl() {
         // given
         final String stamp = "stamp";
-        final String url = "url";
+        final String url = "http://example.com";
         final int usages = 3;
-        final QUrl expected = QUrl.builder()
+        final QUrlRequest expected = QUrlRequest.builder()
                 .stamp(stamp)
                 .url(url)
                 .usages(usages)
@@ -57,8 +60,10 @@ public class QUrlServiceTest {
         qUrlService.addQUrl(expected);
 
         // then
-        final QUrl actual = qUrlService.findQUrlById(expected.getId());
-        assertEquals(expected, actual);
+        final QUrlResponse actual = qUrlService.findQUrlByStamp(expected.getStamp());
+        assertEquals(expected.getUrl(), actual.getUrl());
+        assertEquals(expected.getStamp(), actual.getStamp());
+        assertEquals(expected.getUsages(), actual.getUsages());
     }
 
     @Test
@@ -66,7 +71,7 @@ public class QUrlServiceTest {
         // given
         final String stamp = "stamp";
         final String url = "url";
-        final QUrl expected = QUrl.builder()
+        final QUrlRequest expected = QUrlRequest.builder()
                 .stamp(stamp)
                 .url(url)
                 .build();
@@ -77,7 +82,7 @@ public class QUrlServiceTest {
         qUrlService.addQUrl(expected);
 
         // then
-        final QUrl actual = qUrlService.findQUrlById(expected.getId());
+        final QUrlResponse actual = qUrlService.findQUrlByStamp(expected.getStamp());
         final int actualUsages = actual.getUsages();
 
         assertEquals(expectedUsages, actualUsages);
@@ -89,7 +94,7 @@ public class QUrlServiceTest {
         final String stamp = "stamp";
         final String url = "url";
         final int usages = -1;
-        final QUrl expected = QUrl.builder()
+        final QUrlRequest expected = QUrlRequest.builder()
                 .stamp(stamp)
                 .url(url)
                 .usages(usages)
@@ -101,7 +106,7 @@ public class QUrlServiceTest {
         qUrlService.addQUrl(expected);
 
         // then
-        final QUrl actual = qUrlService.findQUrlById(expected.getId());
+        final QUrlResponse actual = qUrlService.findQUrlByStamp(expected.getStamp());
         final int actualUsages = actual.getUsages();
 
         assertEquals(expectedUsages, actualUsages);
@@ -113,7 +118,7 @@ public class QUrlServiceTest {
         final String stamp = "stamp";
         final String url = "url";
         final int usages = 0;
-        final QUrl expected = QUrl.builder()
+        final QUrlRequest expected = QUrlRequest.builder()
                 .stamp(stamp)
                 .url(url)
                 .usages(usages)
@@ -125,7 +130,7 @@ public class QUrlServiceTest {
         qUrlService.addQUrl(expected);
 
         // then
-        final QUrl actual = qUrlService.findQUrlById(expected.getId());
+        final QUrlResponse actual = qUrlService.findQUrlByStamp(expected.getStamp());
         final int actualUsages = actual.getUsages();
 
         assertEquals(expectedUsages, actualUsages);
@@ -137,7 +142,7 @@ public class QUrlServiceTest {
         final String stamp = "stamp";
         final String url = "url";
         final int usages = Integer.MAX_VALUE;
-        final QUrl expected = QUrl.builder()
+        final QUrlRequest expected = QUrlRequest.builder()
                 .stamp(stamp)
                 .url(url)
                 .usages(usages)
@@ -149,7 +154,7 @@ public class QUrlServiceTest {
         qUrlService.addQUrl(expected);
 
         // then
-        final QUrl actual = qUrlService.findQUrlById(expected.getId());
+        final QUrlResponse actual = qUrlService.findQUrlByStamp(expected.getStamp());
         final int actualUsages = actual.getUsages();
 
         assertEquals(expectedUsages, actualUsages);
@@ -159,9 +164,9 @@ public class QUrlServiceTest {
     public void shouldFindQUrlByStamp() {
         // given
         final String stamp = "stamp";
-        final String url = "url";
+        final String url = "http://example.com";
         final int usages = 3;
-        final QUrl expected = QUrl.builder()
+        final QUrlRequest expected = QUrlRequest.builder()
                 .stamp(stamp)
                 .url(url)
                 .usages(usages)
@@ -170,31 +175,12 @@ public class QUrlServiceTest {
         qUrlService.addQUrl(expected);
 
         // when
-        final QUrl actual = qUrlService.findQUrlByStamp(stamp);
+        final QUrlResponse actual = qUrlService.findQUrlByStamp(stamp);
 
         // then
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void shouldFindQUrlById() {
-        // given
-        final String stamp = "stamp";
-        final String url = "url";
-        final int usages = 3;
-        final QUrl expected = QUrl.builder()
-                .stamp(stamp)
-                .url(url)
-                .usages(usages)
-                .build();
-
-        qUrlService.addQUrl(expected);
-
-        // when
-        final QUrl actual = qUrlService.findQUrlById(expected.getId());
-
-        // then
-        assertEquals(expected, actual);
+        assertEquals(expected.getUrl(), actual.getUrl());
+        assertEquals(expected.getStamp(), actual.getStamp());
+        assertEquals(expected.getUsages(), actual.getUsages());
     }
 
     @Test
@@ -203,19 +189,19 @@ public class QUrlServiceTest {
         final String stamp = "stamp";
         final String url = "url";
         final int usages = 3;
-        final QUrl qUrl = QUrl.builder()
+        final QUrlRequest request = QUrlRequest.builder()
                 .stamp(stamp)
                 .url(url)
                 .usages(usages)
                 .build();
 
-        qUrlService.addQUrl(qUrl);
+        qUrlService.addQUrl(request);
 
         // when
-        qUrlService.removeQUrl(qUrl);
+        qUrlService.removeQUrl(request);
 
         // then
-        final QUrl actual = qUrlService.findQUrlById(qUrl.getId());
+        final QUrlResponse actual = qUrlService.findQUrlByStamp(request.getStamp());
         assertNull(actual);
     }
 
@@ -223,9 +209,9 @@ public class QUrlServiceTest {
     public void shouldPurge() {
         // given
         final int expectedSize = 0;
-        final List<QUrl> qUrls = qUrls();
+        final List<QUrlRequest> requests = QUrlTestUtils.qUrlRequests();
 
-        IntStream.range(0, qUrls.size()).forEach(i -> qUrlService.addQUrl(qUrls.get(i)));
+        IntStream.range(0, requests.size()).forEach(i -> qUrlService.addQUrl(requests.get(i)));
 
         // when
         qUrlService.purge();
@@ -241,22 +227,24 @@ public class QUrlServiceTest {
         final String stamp = "stamp";
         final String url = "http://example.com";
         final int usages = 3;
-        final QUrl qUrl = QUrl.builder()
+        final QUrlRequest request = QUrlRequest.builder()
                 .stamp(stamp)
                 .url(url)
                 .usages(usages)
                 .build();
 
-        final String expected = String.format("{\"rlink\":\"%s\"}", qUrl.getUrl());
+        final LinkResponse expected = LinkResponse.builder()
+                .rlink(request.getUrl())
+                .build();
 
-        qUrlService.addQUrl(qUrl);
+        qUrlService.addQUrl(request);
 
         // when
-        final String actual = qUrlService.generateLink(qUrl);
+        final LinkResponse actual = qUrlService.generateLink(stamp);
 
         // then
         final int expectedUsages = 2;
-        final int actualUsages = qUrlService.findQUrlById(qUrl.getId()).getUsages();
+        final int actualUsages = qUrlService.findQUrlByStamp(request.getStamp()).getUsages();
 
         assertEquals(expected, actual);
         assertEquals(expectedUsages, actualUsages);
@@ -266,28 +254,27 @@ public class QUrlServiceTest {
     public void shouldGenerateLinkWhenZeroUsagesAndDeleteQUrl() {
         // given
         final String stamp = "stamp";
-        final String url = "url";
+        final String url = "http://example.com";
         final int usages = 3;
-        final QUrl qUrl = QUrl.builder()
+        final QUrlRequest request = QUrlRequest.builder()
                 .stamp(stamp)
                 .url(url)
                 .usages(usages)
                 .build();
 
-        qUrlService.addQUrl(qUrl);
+        qUrlService.addQUrl(request);
 
         // when
-        final List<String> actualLinks = new ArrayList<>();
+        final List<LinkResponse> actualLinks = new ArrayList<>();
 
         for (int i = 0; i < 3; i++) {
-            actualLinks.add(qUrlService.generateLink(qUrl));
+            actualLinks.add(qUrlService.generateLink(stamp));
         }
 
         // then
-        final String expectedBody = String.format("{\"rlink\":\"%s\"}", qUrl.getUrl());
-        final QUrl expected = qUrlService.findQUrlById(qUrl.getId());
+        final QUrlResponse expected = qUrlService.findQUrlByStamp(stamp);
 
-        actualLinks.forEach(actualLink -> assertEquals(expectedBody, actualLink));
+        actualLinks.forEach(actualLink -> assertEquals(url, actualLink.getRlink()));
         assertNull(expected);
     }
 }

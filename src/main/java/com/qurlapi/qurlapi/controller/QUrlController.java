@@ -1,7 +1,8 @@
 package com.qurlapi.qurlapi.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.qurlapi.qurlapi.dto.request.QUrlRequest;
+import com.qurlapi.qurlapi.dto.response.LinkResponse;
+import com.qurlapi.qurlapi.dto.response.QUrlResponse;
 import com.qurlapi.qurlapi.model.QUrl;
 import com.qurlapi.qurlapi.service.QUrlService;
 import org.apache.commons.lang3.StringUtils;
@@ -26,24 +27,22 @@ public class QUrlController {
     }
 
     @CrossOrigin
-    @GetMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<?> urls() throws JsonProcessingException {
-        final ObjectMapper mapper = new ObjectMapper();
-        return ResponseEntity.
-                ok(mapper.writeValueAsString(qUrlService.getAllQUrls()));
+    @GetMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> urls() {
+        return ResponseEntity.ok(qUrlService.getAllQUrlsJson());
     }
 
     @CrossOrigin
     @ResponseBody
     @PostMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> addUrl(@RequestBody final QUrl qUrl) {
+    public ResponseEntity<?> addUrl(@RequestBody final QUrlRequest request) {
         final ResponseEntity.BodyBuilder badRequest =
                 ResponseEntity.status(HttpStatus.BAD_REQUEST);
 
-        final String stamp = qUrl.getStamp();
+        final String stamp = request.getStamp();
 
-        if (StringUtils.isEmpty(qUrl.getUrl())) {
+        if (StringUtils.isEmpty(request.getUrl())) {
             return badRequest.body("{\"message\":\"Url is empty :v\"}");
         }
 
@@ -51,26 +50,25 @@ public class QUrlController {
             return badRequest.body("{\"message\":\"Stamp taken!\"}");
         }
 
-        qUrlService.addQUrl(qUrl);
-        LOGGER.info("QUrl '{}' has been successfully added", qUrl);
+        LOGGER.info("QUrl request '{}' is being serviced", request);
+        qUrlService.addQUrl(request);
+        LOGGER.info("QUrl request '{}' has been successfully serviced", request);
 
-        final String response = qUrlService.createJson(qUrl);
+        final QUrlResponse response = qUrlService.createQUrlResponse(request);
 
         return ResponseEntity.ok(response);
     }
 
     @CrossOrigin
     @GetMapping(path = {"/urls/{stamp}"})
-    public ResponseEntity<String> link(@PathVariable final String stamp) {
-        final QUrl qurl = qUrlService.findQUrlByStamp(stamp);
-
-        if (qurl == null) {
+    public ResponseEntity<?> getLink(@PathVariable final String stamp) {
+        if (qUrlService.findQUrlByStamp(stamp) == null) {
             LOGGER.info("QUrl with stamp: '{}' not found", stamp);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        final String response = qUrlService.generateLink(qurl);
-        LOGGER.info("Link has been generated successfully for '{}'", qurl);
+        final LinkResponse response = qUrlService.generateLink(stamp);
+        LOGGER.info("Link has been generated successfully for stamp '{}'", stamp);
 
         return ResponseEntity.ok(response);
     }
