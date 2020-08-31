@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qurlapi.qurlapi.dao.QUrlRepository;
+import com.qurlapi.qurlapi.dto.request.QUrlRequest;
 import com.qurlapi.qurlapi.model.QUrl;
 import com.qurlapi.qurlapi.util.QUrlTestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,10 +15,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.UUID;
-
-import static com.qurlapi.qurlapi.util.QUrlTestUtils.expectedGetAllQUrls;
-import static com.qurlapi.qurlapi.util.QUrlTestUtils.qUrls;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
@@ -39,17 +36,17 @@ public class QUrlControllerTest {
     public void shouldGetAllQUrls() {
         // given
         final HttpStatus expectedStatus = HttpStatus.OK;
-        final String expectedBody = expectedGetAllQUrls();
+        final String expectedBody = QUrlTestUtils.expectedGetAllQUrls();
 
-        qUrlRepository.saveAll(qUrls());
+        qUrlRepository.saveAll(QUrlTestUtils.qUrls());
 
         // when
-        final ResponseEntity<String> qUrls = restTemplate
+        final ResponseEntity<String> response = restTemplate
                 .getForEntity(QUrlTestUtils.URL, String.class);
 
         // then
-        final HttpStatus actualStatus = qUrls.getStatusCode();
-        final String actualBody = qUrls.getBody();
+        final HttpStatus actualStatus = response.getStatusCode();
+        final String actualBody = response.getBody();
 
         assertEquals(expectedStatus, actualStatus);
         assertEquals(expectedBody, actualBody);
@@ -60,7 +57,7 @@ public class QUrlControllerTest {
         // given
         final String url = "https://example.com";
         final int usages = 3;
-        final QUrl qUrl = QUrl.builder()
+        final QUrlRequest qUrl = QUrlRequest.builder()
                 .url(url)
                 .usages(usages)
                 .build();
@@ -103,8 +100,7 @@ public class QUrlControllerTest {
         // given
         final String stamp = "testStamp";
         final int usages = 3;
-        final QUrl qUrl = QUrl.builder()
-                .id(UUID.randomUUID())
+        final QUrlRequest qUrl = QUrlRequest.builder()
                 .url("https://example.com")
                 .stamp(stamp)
                 .usages(usages)
@@ -137,7 +133,7 @@ public class QUrlControllerTest {
         // given
         final String url = "https://example.com";
         final String stamp = "stamp";
-        final QUrl qUrl = QUrl.builder()
+        final QUrlRequest qUrl = QUrlRequest.builder()
                 .url(url)
                 .stamp(stamp)
                 .build();
@@ -181,7 +177,7 @@ public class QUrlControllerTest {
         final String url = "https://example.com";
         final String stamp = "stamp";
         final int usages = -1;
-        final QUrl qUrl = QUrl.builder()
+        final QUrlRequest qUrl = QUrlRequest.builder()
                 .url(url)
                 .stamp(stamp)
                 .usages(usages)
@@ -226,7 +222,7 @@ public class QUrlControllerTest {
         final String url = "https://example.com";
         final String stamp = "stamp";
         final int usages = Integer.MAX_VALUE;
-        final QUrl qUrl = QUrl.builder()
+        final QUrlRequest qUrl = QUrlRequest.builder()
                 .url(url)
                 .stamp(stamp)
                 .usages(usages)
@@ -270,7 +266,7 @@ public class QUrlControllerTest {
         // given
         final String stamp = "stamp";
         final int usages = 3;
-        final QUrl qUrl = QUrl.builder()
+        final QUrlRequest qUrl = QUrlRequest.builder()
                 .stamp(stamp)
                 .usages(usages)
                 .build();

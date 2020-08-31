@@ -75,7 +75,7 @@ public class QUrlRepositoryTest {
         qUrlRepository.save(expected);
 
         // then
-        final QUrl actual = qUrlRepository.findByStamp(stamp);
+        final QUrl actual = qUrlRepository.findByStamp(stamp).orElse(null);
         assertEquals(expected, actual);
     }
 

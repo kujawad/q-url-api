@@ -2,8 +2,10 @@ package com.qurlapi.qurlapi.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.qurlapi.qurlapi.dao.QUrlRepository;
+import com.qurlapi.qurlapi.dto.request.QUrlRequest;
+import com.qurlapi.qurlapi.dto.response.LinkResponse;
+import com.qurlapi.qurlapi.dto.response.QUrlResponse;
 import com.qurlapi.qurlapi.model.QUrl;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
@@ -13,7 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class QUrlService {
@@ -33,76 +36,96 @@ public class QUrlService {
         this.qUrlRepository = qUrlRepository;
     }
 
-    public List<QUrl> getAllQUrls() {
-        return qUrlRepository.findAll();
+    public List<QUrlResponse> getAllQUrls() {
+        final List<QUrl> qUrls = qUrlRepository.findAll();
+        return qUrls.stream()
+                .map(q -> QUrlResponse.builder()
+                        .url(q.getUrl())
+                        .stamp(q.getStamp())
+                        .usages(q.getUsages())
+                        .build())
+                .collect(Collectors.toList());
     }
 
-    public void addQUrl(final QUrl qUrl) {
-        final String url = qUrl.getUrl();
-        final int usages = qUrl.getUsages();
+    public String getAllQUrlsJson() {
+        final ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(getAllQUrls());
+        } catch (final JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 
-        if (StringUtils.isEmpty(qUrl.getStamp())) {
-            qUrl.setStamp(RandomStringUtils.randomAlphanumeric(STAMP_LENGTH));
+    public void addQUrl(final QUrlRequest request) {
+        final String url = request.getUrl();
+        final String stamp = request.getStamp();
+        final int usages = request.getUsages();
+
+        final QUrl.QUrlBuilder builder = QUrl.builder()
+                .url(url)
+                .stamp(stamp)
+                .usages(usages);
+
+        if (StringUtils.isEmpty(stamp)) {
+            builder.stamp(RandomStringUtils.randomAlphanumeric(STAMP_LENGTH));
         }
 
         if (!url.startsWith("http")) {
-            qUrl.setUrl("http://" + url);
+            builder.url("http://" + url);
         }
 
         if (usages <= MIN_USAGES || usages > MAX_USAGES) {
-            qUrl.setUsages(DEFAULT_USAGES);
-        } else {
-            qUrl.setUsages(usages);
+            builder.usages(DEFAULT_USAGES);
         }
+
+        final QUrl qUrl = builder.build();
+
+        request.setStamp(qUrl.getStamp());
+        request.setUsages(qUrl.getUsages());
 
         qUrlRepository.save(qUrl);
     }
 
-    public QUrl findQUrlByStamp(final String stamp) {
-        return qUrlRepository.findByStamp(stamp);
+    public QUrlResponse findQUrlByStamp(final String stamp) {
+        final QUrl qUrl = qUrlRepository.findByStamp(stamp).orElse(null);
+        return qUrl == null ? null : QUrlResponse.builder()
+                .url(qUrl.getUrl())
+                .stamp(qUrl.getStamp())
+                .usages(qUrl.getUsages())
+                .build();
     }
 
-    public QUrl findQUrlById(final UUID uuid) {
-        return qUrlRepository.findById(uuid).orElse(null);
-    }
+    public void removeQUrl(final QUrlRequest request) {
+        final Optional<QUrl> optionalQUrl = qUrlRepository.findByStamp(request.getStamp());
 
-    public void removeQUrl(final QUrl qUrl) {
-        qUrlRepository.delete(qUrl);
+        optionalQUrl.ifPresent(qUrlRepository::delete);
     }
 
     public void purge() {
         qUrlRepository.deleteAll();
     }
 
-    public String createJson(final QUrl qUrl) {
-        final ObjectMapper mapper = new ObjectMapper();
-
-        String response;
-
-        try {
-            response = mapper.writeValueAsString(qUrl);
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Could not parse '{}'", qUrl);
-            throw new RuntimeException(e);
-        }
-        return response;
+    public QUrlResponse createQUrlResponse(final QUrlRequest request) {
+        return QUrlResponse.builder()
+                .url(request.getUrl())
+                .stamp(request.getStamp())
+                .usages(request.getUsages())
+                .build();
     }
 
-    public String generateLink(final QUrl qUrl) {
-        final String url = qUrl.getUrl();
-        final ObjectMapper mapper = new ObjectMapper();
-        final ObjectNode rootNode = mapper.createObjectNode();
+    public LinkResponse generateLink(final String stamp) {
+        final Optional<QUrl> optionalQUrl = qUrlRepository.findByStamp(stamp);
 
-        rootNode.put("rlink", url);
-
-        String link;
-
-        try {
-            link = mapper.writeValueAsString(rootNode);
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Could not parse url '{}'", url);
-            throw new RuntimeException(e);
+        if (optionalQUrl.isEmpty()) {
+            return null;
         }
+
+        final QUrl qUrl = optionalQUrl.get();
+
+        final LinkResponse response = LinkResponse.builder()
+                .rlink(qUrl.getUrl())
+                .build();
 
         qUrl.setUsages(qUrl.getUsages() - 1);
         qUrlRepository.save(qUrl);
@@ -112,6 +135,6 @@ public class QUrlService {
             qUrlRepository.delete(qUrl);
         }
 
-        return link;
+        return response;
     }
 }
