@@ -1,24 +1,20 @@
 package com.qurlapi.qurlapi.controller;
 
 import com.qurlapi.qurlapi.dto.request.QUrlRequest;
-import com.qurlapi.qurlapi.dto.response.LinkResponse;
-import com.qurlapi.qurlapi.dto.response.QUrlResponse;
-import com.qurlapi.qurlapi.model.QUrl;
 import com.qurlapi.qurlapi.service.QUrlService;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.qurlapi.qurlapi.validation.StampExists;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
+@Validated
 @RestController
 @RequestMapping(path = {"/api"})
 public class QUrlController {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(QUrlController.class);
     private final QUrlService qUrlService;
 
     @Autowired
@@ -36,41 +32,15 @@ public class QUrlController {
     @CrossOrigin
     @ResponseBody
     @PostMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addUrl(@RequestBody final QUrlRequest request) {
-        final ResponseEntity.BodyBuilder badRequest =
-                ResponseEntity.status(HttpStatus.BAD_REQUEST);
-
-        final String stamp = request.getStamp();
-
-        if (StringUtils.isEmpty(request.getUrl())) {
-            return badRequest.body("{\"message\":\"Url is empty :v\"}");
-        }
-
-        if (qUrlService.findQUrlByStamp(stamp) != null) {
-            return badRequest.body("{\"message\":\"Stamp taken!\"}");
-        }
-
-        LOGGER.info("QUrl request '{}' is being serviced", request);
+    public ResponseEntity<?> addUrl(@Valid @RequestBody final QUrlRequest request) {
         qUrlService.addQUrl(request);
-        LOGGER.info("QUrl request '{}' has been successfully serviced", request);
-
-        final QUrlResponse response = qUrlService.createQUrlResponse(request);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(qUrlService.createQUrlResponse(request));
     }
 
     @CrossOrigin
     @GetMapping(path = {"/urls/{stamp}"})
-    public ResponseEntity<?> getLink(@PathVariable final String stamp) {
-        if (qUrlService.findQUrlByStamp(stamp) == null) {
-            LOGGER.info("QUrl with stamp: '{}' not found", stamp);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        final LinkResponse response = qUrlService.generateLink(stamp);
-        LOGGER.info("Link has been generated successfully for stamp '{}'", stamp);
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> getLink(@StampExists(isPathVariable = true) @PathVariable final String stamp) {
+        return ResponseEntity.ok(qUrlService.generateLink(stamp));
     }
 
     // TODO: JWT authentication for this endpoint
