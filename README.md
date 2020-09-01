@@ -6,6 +6,11 @@ Quick url shortener api provides functionality for shortening long urls.
 - Java 11
 - Any database supported by Liquibase (see [Application flow](#application-flow))
 
+# Swagger documentation
+Swagger documentation is available at [https://q-url-api.herokuapp.com/swagger-ui/](https://q-url-api.herokuapp.com/swagger-ui/).
+
+After running application, the documentation will be available at `<host>/swagger-ui/` (eg. `http://localhost:8080/swagger-ui/`).
+
 # Prerequisites
 The best way is to isolate applications using containers (see [Docker](#docker)). If You don't want to use
 Docker proceed with the following subsections.
@@ -119,6 +124,7 @@ Everytime you change the `db.changelog-master.yaml` file all you have to do is:
 ./gradlew update
 ```
 
+in order to apply the changes to database.
 # Docker
 I highly recommend using [Docker](https://www.docker.com/) for at least database in order to isolate 
 the application logic.
