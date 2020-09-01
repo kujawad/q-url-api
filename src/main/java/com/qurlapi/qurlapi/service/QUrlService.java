@@ -58,6 +58,8 @@ public class QUrlService {
     }
 
     public void addQUrl(final QUrlRequest request) {
+        LOGGER.info("QUrl request '{}' is being serviced", request);
+
         final String url = request.getUrl();
         final String stamp = request.getStamp();
         final int usages = request.getUsages();
@@ -85,11 +87,17 @@ public class QUrlService {
         request.setUsages(qUrl.getUsages());
 
         qUrlRepository.save(qUrl);
+        LOGGER.info("QUrl request '{}' has been successfully serviced", request);
     }
 
     public QUrlResponse findQUrlByStamp(final String stamp) {
         final QUrl qUrl = qUrlRepository.findByStamp(stamp).orElse(null);
-        return qUrl == null ? null : QUrlResponse.builder()
+        if (qUrl == null) {
+            LOGGER.info("QUrl with stamp: '{}' not found", stamp);
+            return null;
+        }
+
+        return QUrlResponse.builder()
                 .url(qUrl.getUrl())
                 .stamp(qUrl.getStamp())
                 .usages(qUrl.getUsages())
@@ -134,6 +142,8 @@ public class QUrlService {
             LOGGER.info("'{}' reached 0 usages. Removing from database.", qUrl);
             qUrlRepository.delete(qUrl);
         }
+
+        LOGGER.info("Link has been generated successfully for stamp '{}'", stamp);
 
         return response;
     }

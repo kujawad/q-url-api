@@ -1,8 +1,8 @@
 plugins {
-	id 'org.springframework.boot' version '2.3.2.RELEASE'
-	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-	id 'java'
-	id 'org.liquibase.gradle' version '2.0.3'
+    id 'org.springframework.boot' version '2.3.2.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
+    id 'org.liquibase.gradle' version '2.0.3'
 }
 
 group = 'com.q-url-api'
@@ -10,58 +10,59 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 liquibase {
-	activities {
-		local {
-			changeLogFile 'src/main/resources/db/changelog/db.changelog-master.yaml'
-			url 'jdbc:postgresql://localhost:5432/q-url-api'
-			username 'postgres'
-			password 'postgres'
-			driver 'org.postgresql.Driver'
-		}
-	}
-	runList 'local'
+    activities {
+        local {
+            changeLogFile 'src/main/resources/db/changelog/db.changelog-master.yaml'
+            url 'jdbc:postgresql://localhost:5432/q-url-api'
+            username 'postgres'
+            password 'postgres'
+            driver 'org.postgresql.Driver'
+        }
+    }
+    runList 'local'
 }
 
 dependencies {
-	// Spring Boot
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-	// Lombok
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
-	// PostgreSQL
-	runtimeOnly 'org.postgresql:postgresql'
+    // PostgreSQL
+    runtimeOnly 'org.postgresql:postgresql'
 
-	// Liquibase
-	implementation 'org.liquibase:liquibase-core'
-	liquibaseRuntime 'org.liquibase:liquibase-core'
-	liquibaseRuntime 'org.yaml:snakeyaml'
-	liquibaseRuntime 'ch.qos.logback:logback-core'
-	liquibaseRuntime 'ch.qos.logback:logback-classic'
-	liquibaseRuntime 'org.postgresql:postgresql'
+    // Liquibase
+    implementation 'org.liquibase:liquibase-core'
+    liquibaseRuntime 'org.liquibase:liquibase-core'
+    liquibaseRuntime 'org.yaml:snakeyaml'
+    liquibaseRuntime 'ch.qos.logback:logback-core'
+    liquibaseRuntime 'ch.qos.logback:logback-classic'
+    liquibaseRuntime 'org.postgresql:postgresql'
 
-	// Apache
-	implementation 'org.apache.commons:commons-lang3'
+    // Apache
+    implementation 'org.apache.commons:commons-lang3'
 
-	// Tests
-	testImplementation('org.springframework.boot:spring-boot-starter-test') {
-		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-	}
-	testImplementation 'com.h2database:h2'
+    // Tests
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'com.h2database:h2'
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
