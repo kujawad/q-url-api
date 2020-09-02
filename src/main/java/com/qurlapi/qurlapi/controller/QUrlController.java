@@ -1,5 +1,6 @@
 package com.qurlapi.qurlapi.controller;
 
+import com.qurlapi.qurlapi.config.QUrlControllerApiInfo;
 import com.qurlapi.qurlapi.dto.request.QUrlRequest;
 import com.qurlapi.qurlapi.service.QUrlService;
 import com.qurlapi.qurlapi.validation.StampExists;
@@ -14,7 +15,7 @@ import javax.validation.Valid;
 @Validated
 @RestController
 @RequestMapping(path = {"/api"})
-public class QUrlController {
+public class QUrlController implements QUrlControllerApiInfo {
     private final QUrlService qUrlService;
 
     @Autowired
@@ -22,6 +23,7 @@ public class QUrlController {
         this.qUrlService = qUrlService;
     }
 
+    @GetQUrlsInfo
     @CrossOrigin
     @ResponseBody
     @GetMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
@@ -29,21 +31,29 @@ public class QUrlController {
         return ResponseEntity.ok(qUrlService.getAllQUrlsJson());
     }
 
+    @AddQUrlInfo
     @CrossOrigin
     @ResponseBody
-    @PostMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+    @PostMapping(
+            path = {"/urls"},
+            produces = MimeTypeUtils.APPLICATION_JSON_VALUE,
+            consumes = MimeTypeUtils.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<?> addUrl(@Valid @RequestBody final QUrlRequest request) {
         qUrlService.addQUrl(request);
         return ResponseEntity.ok(qUrlService.createQUrlResponse(request));
     }
 
+    @GetLinkInfo
     @CrossOrigin
-    @GetMapping(path = {"/urls/{stamp}"})
+    @ResponseBody
+    @GetMapping(path = {"/urls/{stamp}"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getLink(@StampExists(isPathVariable = true) @PathVariable final String stamp) {
         return ResponseEntity.ok(qUrlService.generateLink(stamp));
     }
 
     // TODO: JWT authentication for this endpoint
+    @PurgeInfo
     @GetMapping(path = {"/purge"})
     public void purge() {
         qUrlService.purge();
