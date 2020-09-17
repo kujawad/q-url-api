@@ -135,4 +135,7 @@ gradle-app.setting
 ### Gradle Patch ###
 **/build/
 
+### Environment variables ###
+.env
+
 # End of https://www.toptal.com/developers/gitignore/api/java,gradle,intellij+all
