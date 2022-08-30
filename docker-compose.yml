@@ -2,7 +2,7 @@ services:
   app:
     image: 'kujawad/q-url-api:latest'
     build:
-      context: src/main/docker/
+      context: .
     container_name: q-url-api
     ports:
       - '8080:8080'
