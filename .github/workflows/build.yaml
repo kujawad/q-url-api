@@ -56,3 +56,6 @@ jobs:
           context: .
           push: true
           tags: kujawad/q-url-api:latest
+      - name: Deploy
+        run: |
+          curl --silent --request POST --url "${{ secrets.RENDER_HOOK }}"
