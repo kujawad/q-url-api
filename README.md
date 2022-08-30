@@ -1,4 +1,4 @@
-# q-url-api [![Build Status](https://travis-ci.org/kujawad/q-url-api.svg?branch=master)](https://travis-ci.org/kujawad/q-url-api)
+# q-url-api [![Build](https://github.com/kujawad/q-url-api/actions/workflows/build.yaml/badge.svg?branch=master)](https://github.com/kujawad/q-url-api/actions/workflows/build.yaml)
 
 Quick url shortener api provides functionality for shortening long urls.
 
