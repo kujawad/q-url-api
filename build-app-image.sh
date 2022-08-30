@@ -1,0 +1,1 @@
+docker build -t kujawad/q-url-api:latest -f src/main/docker/Dockerfile .
