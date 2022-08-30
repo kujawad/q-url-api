@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: q-url-api
+    env: docker
+    repo: https://github.com/kujawad/q-url-api
+    region: frankfurt # optional (defaults to oregon)
+    plan: free # optional (defaults to starter)
+    branch: master # optional (uses repo default)
+    numInstances: 1 # optional (defaults to 1)
+    envVars:
+      - key: SERVER_PORT
+        value: 443
