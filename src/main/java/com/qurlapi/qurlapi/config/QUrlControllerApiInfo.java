@@ -19,67 +19,43 @@ public interface QUrlControllerApiInfo {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)
-    @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    response = QUrlResponse.class,
-                    message = "Returns list of all quick urls in database.",
-                    responseContainer = "List"
-            )
-    })
+    @ApiResponses(value = {@ApiResponse(code = 200,
+                                        response = QUrlResponse.class,
+                                        message = "Returns list of all quick urls in database.",
+                                        responseContainer = "List")})
     @interface GetQUrlsInfo {
 
     }
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)
-    @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    response = QUrlResponse.class,
-                    message = "Returns QUrlResponse object."
-            ),
-            @ApiResponse(
-                    code = 400,
-                    response = ExceptionResponse.class,
-                    message = "Bad request. Validation of request body failed. Message property may vary, depends on the circumstances."
-            )
-    })
+    @ApiResponses(value = {@ApiResponse(code = 200,
+                                        response = QUrlResponse.class,
+                                        message = "Returns QUrlResponse object."), @ApiResponse(code = 400,
+                                                                                                response = ExceptionResponse.class,
+                                                                                                message = "Bad request. Validation of request body failed. Message property may vary, depends on the circumstances.")})
     @interface AddQUrlInfo {
 
     }
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)
-    @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    response = LinkResponse.class,
-                    message = "Returns LinkResponse object."
-            ),
-            @ApiResponse(
-                    code = 400,
-                    response = ExceptionResponse.class,
-                    message = "Bad request. Validation of path parameter failed."
-            ),
-            @ApiResponse(
-                    code = 404,
-                    response = ExceptionResponse.class,
-                    message = "Not found. Stamp doesn't exists."
-            )
-    })
+    @ApiResponses(value = {@ApiResponse(code = 200,
+                                        response = LinkResponse.class,
+                                        message = "Returns LinkResponse object."), @ApiResponse(code = 400,
+                                                                                                response = ExceptionResponse.class,
+                                                                                                message = "Bad request. Validation of path parameter failed."),
+                           @ApiResponse(code = 404,
+                                        response = ExceptionResponse.class,
+                                        message = "Not found. Stamp doesn't exists.")})
     @interface GetLinkInfo {
 
     }
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)
-    @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    message = "Removes all quick urls."
-            )
-    })
+    @ApiResponses(value = {@ApiResponse(code = 200,
+                                        message = "Removes all quick urls.")})
     @ApiIgnore
     @interface PurgeInfo {
 

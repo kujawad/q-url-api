@@ -1,22 +1,43 @@
 plugins {
-    id 'org.springframework.boot' version '2.3.2.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'org.springframework.boot' version '2.7.3'
+    id 'io.spring.dependency-management' version '1.0.13.RELEASE'
     id 'java'
     id 'org.liquibase.gradle' version '2.0.3'
+    id 'org.unbroken-dome.test-sets' version '4.0.0'
+    id "com.palantir.docker" version "0.34.0"
 }
 
 group = 'com.q-url-api'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    inttestCompileOnly.extendsFrom testCompileOnly
+    inttestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
 repositories {
     mavenCentral()
+}
+
+testSets {
+    integrationTest
+}
+
+sourceSets {
+    testCommons {
+        java {
+            srcDir 'src/testCommons/java'
+        }
+        resources {
+            srcDir 'src/testCommons/resources'
+        }
+        compileClasspath += sourceSets.main.runtimeClasspath
+    }
 }
 
 liquibase {
@@ -60,12 +81,38 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
 
     // Tests
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
-    testImplementation 'com.h2database:h2'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    integrationTestImplementation 'org.springframework.boot:spring-boot-starter-test'
+    integrationTestImplementation 'com.h2database:h2'
+
+    testImplementation sourceSets.testCommons.output
+    integrationTestImplementation sourceSets.testCommons.output
 }
 
-test {
+tasks.withType(Test) {
     useJUnitPlatform()
 }
+
+task unpack(type: Copy) {
+    from(zipTree(tasks.bootJar.outputs.files.singleFile))
+    into 'build/docker/dependency'
+}
+
+docker {
+    name = "kujawad/q-url-api"
+    dockerfile = file('src/main/docker/Dockerfile')
+    //copySpec.from(tasks.unpack.outputs).into("dependency")
+    buildArgs(['DEPENDENCY': "dependency"])
+}
+
+task local {
+    bootRun { systemProperty 'spring.profiles.active', 'local' }
+}
+
+bootRun.mustRunAfter local
+
+unpack.dependsOn bootJar
+docker.dependsOn unpack
+check.dependsOn integrationTest
+integrationTest.mustRunAfter test

@@ -1,45 +1,52 @@
 package com.qurlapi.qurlapi.validation;
 
+import com.qurlapi.qurlapi.assembler.dto.QUrlRequestAssembler;
+import com.qurlapi.qurlapi.assembler.model.QUrlAssembler;
+import com.qurlapi.qurlapi.dao.QUrlRepository;
 import com.qurlapi.qurlapi.dto.request.QUrlRequest;
-import com.qurlapi.qurlapi.service.QUrlService;
-import org.junit.jupiter.api.BeforeEach;
+import org.hibernate.validator.internal.constraintvalidators.bv.NotBlankValidator;
+import org.hibernate.validator.internal.constraintvalidators.bv.NotNullValidator;
+import org.hibernate.validator.internal.constraintvalidators.bv.number.bound.MaxValidatorForInteger;
+import org.hibernate.validator.internal.constraintvalidators.bv.number.bound.MinValidatorForInteger;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
+import javax.validation.ConstraintValidatorFactory;
 import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
 import javax.validation.Validator;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
-@ActiveProfiles("test")
-@SpringBootTest
 public class StampExistingValidatorTest {
 
-    @Autowired
-    private QUrlService qUrlService;
-    @Autowired
-    private Validator validator;
+    private static Validator validator;
+    private static QUrlRepository qUrlRepository;
 
-    @BeforeEach
-    public void beforeEach() {
-        qUrlService.purge();
+    @BeforeAll
+    public static void setUp() {
+        qUrlRepository = mock(QUrlRepository.class);
+
+        final ConstraintValidatorFactory cvf = mock(ConstraintValidatorFactory.class);
+        when(cvf.getInstance(StampExistingValidator.class)).thenReturn(new StampExistingValidator(qUrlRepository));
+        when(cvf.getInstance(NotBlankValidator.class)).thenReturn(new NotBlankValidator());
+        when(cvf.getInstance(MinValidatorForInteger.class)).thenReturn(new MinValidatorForInteger());
+        when(cvf.getInstance(MaxValidatorForInteger.class)).thenReturn(new MaxValidatorForInteger());
+        when(cvf.getInstance(NotNullValidator.class)).thenReturn(new NotNullValidator());
+        validator = Validation.buildDefaultValidatorFactory()
+                              .usingContext()
+                              .constraintValidatorFactory(cvf)
+                              .getValidator();
     }
 
     @Test
     public void shouldReturnNoViolationsWhenStampDoesNotExists() {
         // given
-        final String url = "http://example.com";
-        final String stamp = "test";
-        final int usages = 3;
-
-        final QUrlRequest request = QUrlRequest.builder()
-                .url(url)
-                .stamp(stamp)
-                .usages(usages)
-                .build();
+        final QUrlRequest request = QUrlRequestAssembler.any();
+        when(qUrlRepository.findByStamp(eq(request.getStamp()))).thenReturn(Optional.empty());
 
         // when
         final Set<ConstraintViolation<QUrlRequest>> constraintViolations = validator.validate(request);
@@ -52,17 +59,8 @@ public class StampExistingValidatorTest {
     @Test
     public void shouldReturnOneViolationsWhenStampIsTaken() {
         // given
-        final String url = "http://example.com";
-        final String stamp = "test";
-        final int usages = 3;
-
-        final QUrlRequest request = QUrlRequest.builder()
-                .url(url)
-                .stamp(stamp)
-                .usages(usages)
-                .build();
-
-        qUrlService.addQUrl(request);
+        final QUrlRequest request = QUrlRequestAssembler.any();
+        when(qUrlRepository.findByStamp(eq(request.getStamp()))).thenReturn(Optional.of(QUrlAssembler.any()));
 
         // when
         final Set<ConstraintViolation<QUrlRequest>> constraintViolations = validator.validate(request);
@@ -73,7 +71,7 @@ public class StampExistingValidatorTest {
 
         assertEquals(expectedViolations, constraintViolations.size());
         constraintViolations.stream()
-                .findFirst()
-                .ifPresent((violation) -> assertEquals(expectedMessage, violation.getMessage()));
+                            .findFirst()
+                            .ifPresent((violation) -> assertEquals(expectedMessage, violation.getMessage()));
     }
 }

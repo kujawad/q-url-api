@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -24,42 +25,38 @@ import java.util.Set;
 
 @Configuration
 @EnableOpenApi
+@EnableWebMvc
 public class SwaggerConfig implements WebMvcConfigurer {
-    private static final String QURL_CONTROLLER_DESCRIPTION = "Controller for managing the quick urls";
 
-    private final String baseUrl;
-
-    public SwaggerConfig(@Value("${springfox.documentation.swagger-ui.base-url}") final String baseUrl) {
-        this.baseUrl = baseUrl;
-    }
+    @Value("${springfox.documentation.swagger-ui.base-url}")
+    private String baseUrl;
 
     @Bean
     public Docket apiDocs() {
-        return new Docket(DocumentationType.OAS_30)
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("com.qurlapi.qurlapi.controller"))
-                .paths(PathSelectors.any())
-                .build()
-                .tags(tags())
-                .apiInfo(apiInfo())
-                .produces(applicationJson())
-                .consumes(applicationJson())
-                .useDefaultResponseMessages(false);
+        return new Docket(DocumentationType.OAS_30).select()
+                                                   .apis(RequestHandlerSelectors.basePackage(
+                                                           "com.qurlapi.qurlapi.controller"))
+                                                   .paths(PathSelectors.any())
+                                                   .build()
+                                                   .tags(tags())
+                                                   .apiInfo(apiInfo())
+                                                   .produces(applicationJson())
+                                                   .consumes(applicationJson())
+                                                   .useDefaultResponseMessages(false);
     }
 
     private ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-                .license("GPL-3.0 License")
-                .licenseUrl("https://github.com/kujawad/q-url-api/blob/master/LICENSE")
-                .title("Quick Url shortener")
-                .description("API for url shortening")
-                .version("0.1")
-                .contact(new Contact("kujawad", "https://github.com/kujawad", ""))
-                .build();
+        return new ApiInfoBuilder().license("GPL-3.0 License")
+                                   .licenseUrl("https://github.com/kujawad/q-url-api/blob/master/LICENSE")
+                                   .title("Quick Url shortener")
+                                   .description("API for url shortening")
+                                   .version("0.1")
+                                   .contact(new Contact("kujawad", "https://github.com/kujawad", ""))
+                                   .build();
     }
 
     private Tag tags() {
-        return new Tag(Constants.QURL_CONTROLLER_TAG, QURL_CONTROLLER_DESCRIPTION);
+        return new Tag(Constants.QURL_CONTROLLER_TAG, "Controller for managing the quick urls");
     }
 
     private Set<String> applicationJson() {

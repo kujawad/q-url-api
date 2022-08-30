@@ -72,7 +72,7 @@ in order to make the application database-independent.
 If you want to use a different database or make changes to the database see [Liquibase](#liquibase).
 
 # Liquibase
-If you would want to change the database You have to make sure that [Liquibase supports it](https://www.liquibase.org/get-started/databases).
+If you want to change the database You have to make sure that [Liquibase supports it](https://www.liquibase.org/get-started/databases).
 
 If Liquibase supports given database, the change is possible by importing appropriate database driver in 
 `build.gradle` file.

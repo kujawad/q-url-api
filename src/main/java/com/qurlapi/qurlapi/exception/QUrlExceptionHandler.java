@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -24,42 +25,42 @@ public class QUrlExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(QUrlExceptionHandler.class);
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            final MethodArgumentNotValidException ex, final HttpHeaders headers,
-            final HttpStatus status, final WebRequest request) {
-        final HttpServletRequest servletRequest =
-                ((ServletWebRequest) request).getRequest();
+    @NonNull
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(final MethodArgumentNotValidException ex,
+                                                                  @NonNull final HttpHeaders headers,
+                                                                  final HttpStatus status,
+                                                                  @NonNull final WebRequest request) {
+        final HttpServletRequest servletRequest = ((ServletWebRequest) request).getRequest();
 
         final ExceptionResponse response = ExceptionResponse.builder()
-                .status(status.value())
-                .path(servletRequest.getServletPath())
-                .message(Objects.requireNonNull(ex.getBindingResult()
-                        .getFieldError())
-                        .getDefaultMessage())
-                .timestamp(new Date().getTime())
-                .build();
+                                                            .status(status.value())
+                                                            .path(servletRequest.getServletPath())
+                                                            .message(Objects.requireNonNull(ex.getBindingResult()
+                                                                                              .getFieldError())
+                                                                            .getDefaultMessage())
+                                                            .timestamp(new Date().getTime())
+                                                            .build();
 
         LOGGER.error(response.toString());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<?> handleStampNotFound(final HttpServletRequest request,
                                                  final ConstraintViolationException ex) {
         final ExceptionResponse.ExceptionResponseBuilder responseBuilder =
                 ExceptionResponse.builder();
 
         ex.getConstraintViolations()
-                .stream()
-                .findFirst()
-                .ifPresent(constraintViolation ->
-                        responseBuilder
-                                .status(HttpStatus.NOT_FOUND.value())
-                                .path(request.getServletPath())
-                                .message(constraintViolation.getMessage())
-                                .timestamp(new Date().getTime())
-                                .build()
-                );
+          .stream()
+          .findFirst()
+          .ifPresent(constraintViolation ->
+                             responseBuilder.status(HttpStatus.NOT_FOUND.value())
+                                            .path(request.getServletPath())
+                                            .message(constraintViolation.getMessage())
+                                            .timestamp(new Date().getTime())
+                                            .build()
+                    );
         final ExceptionResponse response = responseBuilder.build();
 
         LOGGER.error(response.toString());

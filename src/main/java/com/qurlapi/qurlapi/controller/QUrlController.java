@@ -1,7 +1,9 @@
 package com.qurlapi.qurlapi.controller;
 
 import com.qurlapi.qurlapi.config.QUrlControllerApiInfo;
+import com.qurlapi.qurlapi.dto.factory.QUrlResponseFactory;
 import com.qurlapi.qurlapi.dto.request.QUrlRequest;
+import com.qurlapi.qurlapi.model.QUrl;
 import com.qurlapi.qurlapi.service.QUrlService;
 import com.qurlapi.qurlapi.validation.StampExists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +28,10 @@ public class QUrlController implements QUrlControllerApiInfo {
     @GetQUrlsInfo
     @CrossOrigin
     @ResponseBody
-    @GetMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+    @GetMapping(path = {"/urls"},
+                produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> urls() {
-        return ResponseEntity.ok(qUrlService.getAllQUrlsJson());
+        return ResponseEntity.ok(qUrlService.getAllQUrls());
     }
 
     @AddQUrlInfo
@@ -40,14 +43,15 @@ public class QUrlController implements QUrlControllerApiInfo {
             consumes = MimeTypeUtils.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<?> addUrl(@Valid @RequestBody final QUrlRequest request) {
-        qUrlService.addQUrl(request);
-        return ResponseEntity.ok(qUrlService.createQUrlResponse(request));
+        final QUrl qUrl = qUrlService.addQUrl(request);
+        return ResponseEntity.ok(QUrlResponseFactory.create(qUrl));
     }
 
     @GetLinkInfo
     @CrossOrigin
     @ResponseBody
-    @GetMapping(path = {"/urls/{stamp}"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+    @GetMapping(path = {"/urls/{stamp}"},
+                produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getLink(@StampExists(isPathVariable = true) @PathVariable final String stamp) {
         return ResponseEntity.ok(qUrlService.generateLink(stamp));
     }
