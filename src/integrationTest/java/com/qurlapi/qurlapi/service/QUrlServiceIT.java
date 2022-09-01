@@ -3,7 +3,6 @@ package com.qurlapi.qurlapi.service;
 import com.qurlapi.qurlapi.assembler.dto.QUrlRequestAssembler;
 import com.qurlapi.qurlapi.dao.QUrlRepository;
 import com.qurlapi.qurlapi.dto.request.QUrlRequest;
-import com.qurlapi.qurlapi.dto.response.LinkResponse;
 import com.qurlapi.qurlapi.model.QUrl;
 import com.qurlapi.qurlapi.util.ConstraintConstants;
 import com.qurlapi.qurlapi.util.QUrlIT;
@@ -65,20 +64,17 @@ public class QUrlServiceIT {
     @Test
     public void shouldAddQrlWithNegativeUsagesAndSetToDefault() {
         // given
-        final String stamp = "stamp";
-        final String url = "url";
-        final int usages = -1;
-        final QUrlRequest expected = QUrlRequest.builder()
-                                                .stamp(stamp)
-                                                .url(url)
-                                                .usages(usages)
-                                                .build();
+        final QUrlRequest qUrl = QUrlRequest.builder()
+                                            .stamp("stamp")
+                                            .url("url")
+                                            .usages(-1)
+                                            .build();
 
         // when
-        qUrlService.addQUrl(expected);
+        qUrlService.addQUrl(qUrl);
 
         // then
-        final Optional<QUrl> optionalQUrl = qUrlRepository.findByStamp(expected.getStamp());
+        final Optional<QUrl> optionalQUrl = qUrlRepository.findByStamp(qUrl.getStamp());
         assertThat(optionalQUrl).isPresent();
         assertThat(optionalQUrl.get()
                                .getUsages()).isEqualTo(ConstraintConstants.QUrl.USAGES_DEFAULT_LENGTH);
@@ -121,7 +117,6 @@ public class QUrlServiceIT {
     @Test
     public void shouldPurgeAllQUrls() {
         // given
-        final int expectedSize = 0;
         final List<QUrlRequest> requests = List.of(QUrlRequestAssembler.any(), QUrlRequestAssembler.any(),
                                                    QUrlRequestAssembler.any());
         requests.forEach(request -> qUrlService.addQUrl(request));
@@ -131,24 +126,25 @@ public class QUrlServiceIT {
 
         // then
         assertThat(qUrlService.getAllQUrls()
-                              .size()).isEqualTo(expectedSize);
+                              .size()).isEqualTo(0);
     }
 
     @Test
-    public void shouldGenerateLink() {
+    public void shouldUseLink() {
         // given
         final QUrlRequest request = QUrlRequestAssembler.any();
         qUrlService.addQUrl(request);
 
         // when
-        final LinkResponse link = qUrlService.generateLink(request.getStamp());
+        final QUrl qUrl = qUrlService.useLink(request.getStamp());
 
         // then
-        assertThat(link).isNotNull();
+        assertThat(qUrl).isNotNull();
+        assertThat(qUrl.getUsages()).isEqualTo(request.getUsages() - 1);
     }
 
     @Test
-    public void shouldGenerateLinkWhenZeroUsagesAndDeleteQUrl() {
+    public void shouldUseLinkAndDeleteQUrlWhenExhausted() {
         // given
         final QUrlRequest request = QUrlRequestAssembler.make()
                                                         .withUsages(1)
@@ -157,11 +153,10 @@ public class QUrlServiceIT {
         qUrlService.addQUrl(request);
 
         // when
-        final LinkResponse link = qUrlService.generateLink(request.getStamp());
+        final QUrl link = qUrlService.useLink(request.getStamp());
 
         // then
         final Optional<QUrl> qUrl = qUrlRepository.findByStamp(request.getStamp());
-
         assertThat(link).isNotNull();
         assertThat(qUrl).isNotPresent();
     }

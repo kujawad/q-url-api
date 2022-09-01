@@ -11,9 +11,7 @@ import lombok.*;
 public class LinkResponse {
 
     @Getter
-    @ApiModelProperty(value = "Shortened link.",
-                      name = "rlink",
-                      example = "http://localhost:8080/api/urls/dh7f9a73g")
+    @ApiModelProperty(value = "Shortened link.", name = "rlink", example = "http://localhost:8080/api/urls/dh7f9a73g")
     private String rlink;
 }
 

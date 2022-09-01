@@ -8,6 +8,5 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class QUrlResponse extends GenericQUrlDTO {
-
 }
 

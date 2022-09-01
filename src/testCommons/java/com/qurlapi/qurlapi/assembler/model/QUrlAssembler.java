@@ -3,11 +3,9 @@ package com.qurlapi.qurlapi.assembler.model;
 import com.qurlapi.qurlapi.model.QUrl;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class QUrlAssembler {
-    private UUID id = UUID.randomUUID();
     private String stamp = RandomStringUtils.randomAlphanumeric(10);
     private String url = "https://" + RandomStringUtils.randomAlphanumeric(10) + ".com";
     private int usages = ThreadLocalRandom.current()
@@ -19,11 +17,6 @@ public class QUrlAssembler {
 
     public static QUrl any() {
         return new QUrlAssembler().assemble();
-    }
-
-    public QUrlAssembler withId(final UUID id) {
-        this.id = id;
-        return this;
     }
 
     public QUrlAssembler withStamp(final String stamp) {

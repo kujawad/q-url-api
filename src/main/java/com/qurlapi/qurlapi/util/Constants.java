@@ -6,5 +6,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Constants {
 
-    public static final String QURL_CONTROLLER_TAG = "QUrlController";
+    public static final String QURL_ENDPOINT_TAG = "QUrlEndpoint";
 }

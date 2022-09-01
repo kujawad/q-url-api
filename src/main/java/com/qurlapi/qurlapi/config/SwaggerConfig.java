@@ -75,7 +75,7 @@ public class SwaggerConfig implements WebMvcConfigurer {
     public Docket apiDocs() {
         return new Docket(DocumentationType.OAS_30).select()
                                                    .apis(RequestHandlerSelectors.basePackage(
-                                                           "com.qurlapi.qurlapi.controller"))
+                                                           "com.qurlapi.qurlapi.endpoint"))
                                                    .paths(PathSelectors.any())
                                                    .build()
                                                    .tags(tags())
@@ -96,7 +96,7 @@ public class SwaggerConfig implements WebMvcConfigurer {
     }
 
     private Tag tags() {
-        return new Tag(Constants.QURL_CONTROLLER_TAG, "Controller for managing the quick urls");
+        return new Tag(Constants.QURL_ENDPOINT_TAG, "Endpoint for managing the quick urls");
     }
 
     private Set<String> applicationJson() {
