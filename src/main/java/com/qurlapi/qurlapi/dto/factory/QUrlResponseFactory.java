@@ -9,11 +9,10 @@ import java.util.stream.Collectors;
 public class QUrlResponseFactory {
 
     public static QUrlResponse create(final QUrl qUrl) {
-        return QUrlResponse.builder()
-                           .url(qUrl.getUrl())
-                           .stamp(qUrl.getStamp())
-                           .usages(qUrl.getUsages())
-                           .build();
+        return new QUrlResponse.Builder().withUrl(qUrl.getUrl())
+                                         .withStamp(qUrl.getStamp())
+                                         .withUsages(qUrl.getUsages())
+                                         .build();
     }
 
     public static List<QUrlResponse> create(final List<QUrl> qUrls) {

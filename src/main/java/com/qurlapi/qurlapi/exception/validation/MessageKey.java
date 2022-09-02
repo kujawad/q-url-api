@@ -1,8 +1,16 @@
-package com.qurlapi.qurlapi.exception.code;
+package com.qurlapi.qurlapi.exception.validation;
 
 public enum MessageKey {
 
-    NOT_NULL;
+    URL,
+
+    MAX,
+
+    NOT_NULL,
+
+    NOT_BLANK,
+
+    LENGTH_VIOLATED;
 
     public String getName() {
         final String dashedName = name().replaceAll("_", "-");

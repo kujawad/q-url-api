@@ -5,9 +5,9 @@ import com.qurlapi.qurlapi.exception.problem.ApplicationProblem;
 import lombok.ToString;
 
 @ToString
-public class StampExhaustedException extends ApplicationException {
+public class StampAlreadyExistsException extends ApplicationException {
 
-    public StampExhaustedException(final ApplicationProblem problem, final Object... messageParameters) {
+    public StampAlreadyExistsException(final ApplicationProblem problem, final Object... messageParameters) {
         super(problem, messageParameters);
     }
 }

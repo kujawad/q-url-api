@@ -19,13 +19,35 @@ public abstract class QUrlProblem {
         }
 
         @Override
-        public String getDetail() {
-            return "Stamp with identifier {0} not found";
+        public String getMessage() {
+            return "QUrl stamp with identifier {0} not found";
         }
 
         @Override
         public HttpStatus getHttpStatus() {
             return HttpStatus.NOT_FOUND;
+        }
+    };
+
+    public static final ApplicationProblem STAMP_ALREADY_EXISTS = new ApplicationProblem() {
+        @Override
+        public URI getType() {
+            return URI.create("stamp-already-exists");
+        }
+
+        @Override
+        public String getTitle() {
+            return "Stamp already exists";
+        }
+
+        @Override
+        public String getMessage() {
+            return "QUrl with stamp identifier {0} already exists";
+        }
+
+        @Override
+        public HttpStatus getHttpStatus() {
+            return HttpStatus.CONFLICT;
         }
     };
 }
