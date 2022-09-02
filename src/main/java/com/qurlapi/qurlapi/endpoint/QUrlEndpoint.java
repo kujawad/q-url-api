@@ -42,8 +42,8 @@ public class QUrlEndpoint {
             value = {@ApiResponse(code = 201, response = QUrlResponse.class, message = "Returns QUrlResponse object."),
                      @ApiResponse(code = 403, response = ProblemResponse.class,
                                   message = "Validation of request body failed.")})
-    @PostMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                 consumes = MimeTypeUtils.APPLICATION_JSON_VALUE)
+    @PostMapping(produces = MimeTypeUtils.APPLICATION_JSON_VALUE, consumes = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                 path = {"/urls"})
     @ResponseStatus(value = HttpStatus.CREATED)
     public QUrlResponse addUrl(@Valid @RequestBody final QUrlRequest request) {
         final QUrl qUrl = qUrlService.addQUrl(request);

@@ -8,8 +8,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class QUrlRequestAssembler {
     private String stamp = RandomStringUtils.randomAlphanumeric(10);
     private String url = "https://" + RandomStringUtils.randomAlphanumeric(10) + ".com";
-    private Integer usages = ThreadLocalRandom.current()
-                                              .nextInt(3, 10);
+    private int usages = ThreadLocalRandom.current()
+                                          .nextInt(3, 10);
 
     public static QUrlRequestAssembler make() {
         return new QUrlRequestAssembler();
@@ -29,16 +29,12 @@ public class QUrlRequestAssembler {
         return this;
     }
 
-    public QUrlRequestAssembler withUsages(final Integer usages) {
+    public QUrlRequestAssembler withUsages(final int usages) {
         this.usages = usages;
         return this;
     }
 
     public QUrlRequest assemble() {
-        return QUrlRequest.builder()
-                          .url(url)
-                          .stamp(stamp)
-                          .usages(usages)
-                          .build();
+        return new QUrlRequest(url, stamp, usages);
     }
 }

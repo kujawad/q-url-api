@@ -8,6 +8,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.UUID;
 
 @Entity
@@ -29,7 +31,9 @@ public class QUrl {
     private String stamp;
 
     @Getter
-    @Column(name = "usages", length = ConstraintConstants.QUrl.USAGES_MAX_LENGTH)
+    @Column(name = "usages")
+    @Min(ConstraintConstants.QUrl.USAGES_MIN_LENGTH)
+    @Max(ConstraintConstants.QUrl.USAGES_MAX_LENGTH)
     private int usages;
 
     public void use() {

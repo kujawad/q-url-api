@@ -1,10 +1,12 @@
 package com.qurlapi.qurlapi.service;
 
 import com.qurlapi.qurlapi.assembler.dto.QUrlRequestAssembler;
+import com.qurlapi.qurlapi.assembler.model.QUrlAssembler;
 import com.qurlapi.qurlapi.dao.QUrlRepository;
 import com.qurlapi.qurlapi.dto.request.QUrlRequest;
+import com.qurlapi.qurlapi.exception.domain.StampAlreadyExistsException;
+import com.qurlapi.qurlapi.exception.domain.StampNotFoundException;
 import com.qurlapi.qurlapi.model.QUrl;
-import com.qurlapi.qurlapi.util.ConstraintConstants;
 import com.qurlapi.qurlapi.util.QUrlIT;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 @QUrlIT
 public class QUrlServiceIT {
@@ -62,56 +65,21 @@ public class QUrlServiceIT {
     }
 
     @Test
-    public void shouldAddQrlWithNegativeUsagesAndSetToDefault() {
+    // TODO: add more asserts
+    public void shouldThrowStampAlreadyExistsWhenAddQUrl() {
         // given
-        final QUrlRequest qUrl = QUrlRequest.builder()
-                                            .stamp("stamp")
-                                            .url("url")
-                                            .usages(-1)
-                                            .build();
+        final QUrl qUrl = QUrlAssembler.any();
+        qUrlRepository.save(qUrl);
+
+        final QUrlRequest request = QUrlRequestAssembler.make()
+                                                        .withStamp(qUrl.getStamp())
+                                                        .assemble();
 
         // when
-        qUrlService.addQUrl(qUrl);
+        final Throwable thrown = catchThrowable(() -> qUrlService.addQUrl(request));
 
         // then
-        final Optional<QUrl> optionalQUrl = qUrlRepository.findByStamp(qUrl.getStamp());
-        assertThat(optionalQUrl).isPresent();
-        assertThat(optionalQUrl.get()
-                               .getUsages()).isEqualTo(ConstraintConstants.QUrl.USAGES_DEFAULT_LENGTH);
-    }
-
-    @Test
-    public void shouldAddQrlWithZeroUsagesAndSetToDefault() {
-        // given
-        final QUrlRequest expected = QUrlRequestAssembler.make()
-                                                         .withUsages(0)
-                                                         .assemble();
-
-        // when
-        qUrlService.addQUrl(expected);
-
-        // then
-        final Optional<QUrl> optionalQUrl = qUrlRepository.findByStamp(expected.getStamp());
-        assertThat(optionalQUrl).isPresent();
-        assertThat(optionalQUrl.get()
-                               .getUsages()).isEqualTo(ConstraintConstants.QUrl.USAGES_DEFAULT_LENGTH);
-    }
-
-    @Test
-    public void shouldAddQrlWithMoreThanMaxUsagesAndSetToDefault() {
-        // given
-        final QUrlRequest expected = QUrlRequestAssembler.make()
-                                                         .withUsages(Integer.MAX_VALUE)
-                                                         .assemble();
-
-        // when
-        qUrlService.addQUrl(expected);
-
-        // then
-        final Optional<QUrl> optionalQUrl = qUrlRepository.findByStamp(expected.getStamp());
-        assertThat(optionalQUrl).isPresent();
-        assertThat(optionalQUrl.get()
-                               .getUsages()).isEqualTo(ConstraintConstants.QUrl.USAGES_DEFAULT_LENGTH);
+        assertThat(thrown).isExactlyInstanceOf(StampAlreadyExistsException.class);
     }
 
     @Test
@@ -159,5 +127,16 @@ public class QUrlServiceIT {
         final Optional<QUrl> qUrl = qUrlRepository.findByStamp(request.getStamp());
         assertThat(link).isNotNull();
         assertThat(qUrl).isNotPresent();
+    }
+
+    @Test
+    public void shouldThrowStampNotFoundExceptionWhenGeneratingLink() {
+        // given
+
+        // when
+        final Throwable thrown = catchThrowable(() -> qUrlService.useLink("not-exists-stamp"));
+
+        // then
+        assertThat(thrown).isExactlyInstanceOf(StampNotFoundException.class);
     }
 }

@@ -3,8 +3,10 @@ package com.qurlapi.qurlapi.dto.response;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.qurlapi.qurlapi.exception.problem.ApplicationProblem;
-import com.qurlapi.qurlapi.exception.problem.ValidationError;
+import com.qurlapi.qurlapi.exception.validation.ValidationError;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -22,8 +24,12 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonNaming(PropertyNamingStrategies.KebabCaseStrategy.class)
 public class ProblemResponse implements ApplicationProblem {
+
+    @ApiModelProperty(value = "Exception type.", name = "type", example = "stamp-not-exists")
+    private URI type;
 
     @ApiModelProperty(value = "Status of exception response.", name = "status", example = "400")
     private Integer status;
@@ -31,12 +37,9 @@ public class ProblemResponse implements ApplicationProblem {
     @ApiModelProperty(value = "Exception title.", name = "title", example = "Stamp does not exists!")
     private String title;
 
-    @ApiModelProperty(value = "Exception type.", name = "type", example = "stamp-not-exists")
-    private URI type;
-
-    @ApiModelProperty(value = "Exception details.", name = "detail",
+    @ApiModelProperty(value = "Exception details.", name = "message",
                       example = "Stamp with identifier d8f6a3SDF does not exists!")
-    private String detail;
+    private String message;
 
     @ApiModelProperty(value = "Problem extensions", name = "extensions", example = "{}")
     private Map<String, Object> extensions;
@@ -69,7 +72,7 @@ public class ProblemResponse implements ApplicationProblem {
         }
 
         public ProblemResponse.Builder withDetail(final String detail) {
-            instance.detail = detail;
+            instance.message = detail;
             return this;
         }
 

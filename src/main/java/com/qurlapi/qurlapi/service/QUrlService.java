@@ -2,6 +2,7 @@ package com.qurlapi.qurlapi.service;
 
 import com.qurlapi.qurlapi.dao.QUrlRepository;
 import com.qurlapi.qurlapi.dto.request.QUrlRequest;
+import com.qurlapi.qurlapi.exception.domain.StampAlreadyExistsException;
 import com.qurlapi.qurlapi.exception.domain.StampNotFoundException;
 import com.qurlapi.qurlapi.exception.domain.problem.QUrlProblem;
 import com.qurlapi.qurlapi.model.QUrl;
@@ -30,9 +31,15 @@ public class QUrlService {
 
     @Transactional
     public QUrl addQUrl(final QUrlRequest request) {
-        final String url = request.getUrl();
         final String stamp = request.getStamp();
-        final Integer usages = request.getUsages();
+
+        if (qUrlRepository.findByStamp(stamp)
+                          .isPresent()) {
+            throw new StampAlreadyExistsException(QUrlProblem.STAMP_ALREADY_EXISTS, stamp);
+        }
+
+        final String url = request.getUrl();
+        final int usages = request.getUsages();
 
         final QUrl.Builder builder = new QUrl.Builder().withUrl(url)
                                                        .withStamp(stamp)
@@ -47,12 +54,6 @@ public class QUrlService {
             builder.withUrl("https://" + url);
         }
 
-        if (usages <= ConstraintConstants.QUrl.USAGES_MIN_LENGTH ||
-            usages > ConstraintConstants.QUrl.USAGES_MAX_LENGTH) {
-            log.info("QUrl request usages violated default restrictions, setting to default.");
-            builder.withUsages(ConstraintConstants.QUrl.USAGES_DEFAULT_LENGTH);
-        }
-
         final QUrl qUrl = builder.build();
         return qUrlRepository.save(qUrl);
     }
@@ -63,7 +64,6 @@ public class QUrlService {
 
     @Transactional
     public QUrl useLink(final String stamp) {
-        int a = 3;
         final QUrl qUrl = qUrlRepository.findByStamp(stamp)
                                         .orElseThrow(
                                                 () -> new StampNotFoundException(QUrlProblem.STAMP_NOT_FOUND, stamp));

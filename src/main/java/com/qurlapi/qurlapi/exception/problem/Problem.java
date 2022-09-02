@@ -12,7 +12,7 @@ public interface Problem {
 
     Integer getStatus();
 
-    String getDetail();
+    String getMessage();
 
     Map<String, Object> getExtensions();
 

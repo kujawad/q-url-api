@@ -12,7 +12,7 @@ public abstract class ApplicationException extends RuntimeException {
     private final Object[] messageParameters;
 
     public ApplicationException(final ApplicationProblem problem, final Object... messageParameters) {
-        super(MessageFormat.format(problem.getDetail(), messageParameters));
+        super(MessageFormat.format(problem.getMessage(), messageParameters));
         this.problem = problem;
         this.messageParameters = messageParameters;
     }

@@ -2,7 +2,7 @@ package com.qurlapi.qurlapi.exception.handler;
 
 import com.qurlapi.qurlapi.dto.response.ProblemResponse;
 import com.qurlapi.qurlapi.exception.problem.Problem;
-import com.qurlapi.qurlapi.exception.problem.ValidationError;
+import com.qurlapi.qurlapi.exception.validation.ValidationError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Collections;
 import java.util.List;
 
-public interface BaseExceptionHandler {
+interface BaseExceptionHandler {
     default ResponseEntity<Problem> createResponseEntity(final HttpStatus httpStatus) {
         return createResponseEntity(new ProblemResponse(httpStatus));
     }

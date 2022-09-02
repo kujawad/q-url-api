@@ -1,38 +1,63 @@
 package com.qurlapi.qurlapi.exception.handler;
 
 import com.qurlapi.qurlapi.dto.response.ProblemResponse;
+import com.qurlapi.qurlapi.exception.ApplicationException;
+import com.qurlapi.qurlapi.exception.domain.StampAlreadyExistsException;
 import com.qurlapi.qurlapi.exception.domain.StampNotFoundException;
+import com.qurlapi.qurlapi.exception.handler.message.ConstraintViolationLogMessageFactory;
+import com.qurlapi.qurlapi.exception.handler.message.HttpMessageNotReadableLogMessageFactory;
 import com.qurlapi.qurlapi.exception.handler.message.ValidationLogMessageFactory;
 import com.qurlapi.qurlapi.exception.problem.Problem;
+import com.qurlapi.qurlapi.exception.validation.ValidationErrorFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
-import java.util.List;
+import java.util.Collections;
 
 @Slf4j
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class RestExceptionHandler implements BaseExceptionHandler {
 
-    @ExceptionHandler(BindException.class)
+    @ExceptionHandler({BindException.class, MethodArgumentNotValidException.class})
     protected ResponseEntity<Problem> handleException(final BindException exception) {
-        return createResponseEntity(HttpStatus.BAD_REQUEST, ValidationLogMessageFactory.create(exception), List.of());
+        log.warn("{}{}", exception.getMessage(), exception);
+        return createResponseEntity(HttpStatus.BAD_REQUEST, ValidationLogMessageFactory.create(exception),
+                                    ValidationErrorFactory.create(exception.getAllErrors()));
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<Problem> handleException(final MethodArgumentNotValidException exception) {
-        return createResponseEntity(HttpStatus.BAD_REQUEST, ValidationLogMessageFactory.create(exception), List.of());
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Problem> handleException(final ConstraintViolationException exception) {
+        log.warn("{}{}", exception.getMessage(), exception);
+        return createResponseEntity(HttpStatus.BAD_REQUEST, ConstraintViolationLogMessageFactory.create(exception),
+                                    ValidationErrorFactory.create(exception));
     }
 
-    @ExceptionHandler(StampNotFoundException.class)
-    protected ResponseEntity<Problem> handleException(final StampNotFoundException exception) {
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Problem> handleException(final HttpMessageNotReadableException exception) {
+        log.warn("{}{}", exception.getMessage(), exception);
+        return createResponseEntity(HttpStatus.BAD_REQUEST, HttpMessageNotReadableLogMessageFactory.create(exception),
+                                    Collections.emptyList());
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<Problem> handleException(final HttpRequestMethodNotSupportedException exception) {
+        log.warn("{}{}", exception.getMessage(), exception);
+        return createResponseEntity(HttpStatus.METHOD_NOT_ALLOWED, exception.getMessage(), Collections.emptyList());
+    }
+
+    @ExceptionHandler({StampNotFoundException.class, StampAlreadyExistsException.class})
+    protected ResponseEntity<Problem> handleException(final ApplicationException exception) {
         final Problem problem = exception.getProblem();
         final ProblemResponse response = new ProblemResponse.Builder().withTitle(problem.getTitle())
                                                                       .withDetail(exception.getMessage())
@@ -42,24 +67,4 @@ public class RestExceptionHandler implements BaseExceptionHandler {
                                                                       .build();
         return createResponseEntity(response);
     }
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ProblemResponse handleException(final HttpServletRequest request, final ConstraintViolationException ex) {
-        return null;
-
-        /*final ProblemResponse.ProblemResponseBuilder responseBuilder = ProblemResponse.builder();
-
-        ex.getConstraintViolations()
-          .stream()
-          .findFirst()
-          .ifPresent(constraintViolation -> responseBuilder.status(HttpStatus.NOT_FOUND.value())
-                                                           .path(request.getServletPath())
-                                                           .message(constraintViolation.getMessage())
-                                                           .timestamp(new Date().getTime())
-                                                           .build());
-        return responseBuilder.build();*/
-    }
-
-
 }

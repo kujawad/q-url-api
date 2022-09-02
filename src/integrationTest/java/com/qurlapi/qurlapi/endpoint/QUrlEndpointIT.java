@@ -4,9 +4,10 @@ import com.qurlapi.qurlapi.assembler.dto.QUrlRequestAssembler;
 import com.qurlapi.qurlapi.assembler.model.QUrlAssembler;
 import com.qurlapi.qurlapi.dao.QUrlRepository;
 import com.qurlapi.qurlapi.dto.request.QUrlRequest;
-import com.qurlapi.qurlapi.dto.response.ProblemResponse;
 import com.qurlapi.qurlapi.dto.response.LinkResponse;
+import com.qurlapi.qurlapi.dto.response.ProblemResponse;
 import com.qurlapi.qurlapi.dto.response.QUrlResponse;
+import com.qurlapi.qurlapi.exception.validation.ValidationError;
 import com.qurlapi.qurlapi.model.QUrl;
 import com.qurlapi.qurlapi.util.QUrlIT;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,7 +67,7 @@ public class QUrlEndpointIT {
 
         // then
         final QUrlResponse actualBody = response.getBody();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(actualBody).isNotNull();
         assertThat(actualBody.getStamp()).isEqualTo(request.getStamp());
     }
@@ -82,33 +83,16 @@ public class QUrlEndpointIT {
 
         // then
         final QUrlResponse actualBody = response.getBody();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(actualBody).isNotNull();
         assertThat(actualBody.getStamp()).isNotNull();
-    }
-
-    @Test
-    public void shouldNotAddQUrlWithUsagesNotGiven() {
-        // given
-        final QUrlRequest request = QUrlRequestAssembler.make()
-                                                        .withUsages(null)
-                                                        .assemble();
-
-        // when
-        final ResponseEntity<ProblemResponse> response = post(request, ProblemResponse.class);
-
-        // then
-        final ProblemResponse actualBody = response.getBody();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(actualBody).isNotNull();
-        assertThat(actualBody.getMessage()).isEqualTo("Property cannot be null");
     }
 
     @Test
     public void shouldNotAddQrlWithMoreThanMaxUsages() {
         // given
         final QUrlRequest request = QUrlRequestAssembler.make()
-                                                        .withUsages(Integer.MAX_VALUE)
+                                                        .withUsages(129)
                                                         .assemble();
 
         // when
@@ -118,10 +102,19 @@ public class QUrlEndpointIT {
         final ProblemResponse actualBody = response.getBody();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(actualBody).isNotNull();
-        assertThat(actualBody.getMessage()).isEqualTo("Usage values must be lower or equal to 128");
+        assertThat(actualBody.getTitle()).isEqualTo("Request parameters are not valid");
+        assertThat(actualBody.getMessage()).isEqualTo(
+                "Validation failed for object 'QUrlRequest': field errors (1) on ['usages'(1)]");
+        assertThat(actualBody.getValidationErrors()).isNotEmpty();
+        final ValidationError validationError = actualBody.getValidationErrors()
+                                                          .get(0);
+        assertThat(validationError.getMessageKey()).isEqualTo("max");
+        assertThat(validationError.getContextKey()).isEqualTo("usages");
+        assertThat(validationError.getMessage()).isEqualTo("Usage values must be lower or equal to 128");
     }
 
     @Test
+    //TODO: add more asserts
     public void shouldNotAddQUrlWithNegativeUsages() {
         // given
         final QUrlRequest request = QUrlRequestAssembler.make()
@@ -135,10 +128,11 @@ public class QUrlEndpointIT {
         final ProblemResponse actualBody = response.getBody();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(actualBody).isNotNull();
-        assertThat(actualBody.getMessage()).isEqualTo("Usage values must be higher or equal to 1");
+        assertThat(actualBody.getMessage()).isEqualTo("Validation failed for object 'QUrlRequest': field errors (1) on ['usages'(1)]");
     }
 
     @Test
+    //TODO: add more asserts
     public void shouldNotAddQrlWhenUrlIsEmpty() {
         // given
         final QUrlRequest request = QUrlRequestAssembler.make()
@@ -152,10 +146,11 @@ public class QUrlEndpointIT {
         final ProblemResponse actualBody = response.getBody();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(actualBody).isNotNull();
-        assertThat(actualBody.getMessage()).isEqualTo("Url is empty :v");
+        assertThat(actualBody.getMessage()).isEqualTo("Validation failed for object 'QUrlRequest': field errors (1) on ['url'(1)]");
     }
 
     @Test
+    //TODO: add more asserts
     public void shouldNotAddQrlWhenUrlIsNull() {
         // given
         final QUrlRequest request = QUrlRequestAssembler.make()
@@ -169,12 +164,13 @@ public class QUrlEndpointIT {
         final ProblemResponse actualBody = response.getBody();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(actualBody).isNotNull();
-        assertThat(actualBody.getMessage()).isEqualTo("Url is empty :v");
+        assertThat(actualBody.getMessage()).isEqualTo("Validation failed for object 'QUrlRequest': field errors (1) on ['url'(1)]");
         assertThat(qUrlRepository.findAll()
                                  .size()).isEqualTo(0);
     }
 
     @Test
+    //TODO: add more asserts
     public void shouldNotAddQrlWhenStampTaken() {
         // given
         final QUrl qUrl = QUrlAssembler.any();
@@ -188,9 +184,10 @@ public class QUrlEndpointIT {
 
         // then
         final ProblemResponse actualBody = response.getBody();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(actualBody).isNotNull();
-        assertThat(actualBody.getMessage()).isEqualTo("Stamp taken!");
+        assertThat(actualBody.getMessage()).isEqualTo(
+                "QUrl with stamp identifier " + qUrl.getStamp() + " already exists");
         assertThat(qUrlRepository.findAll()
                                  .size()).isEqualTo(1);
     }
