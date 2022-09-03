@@ -5,7 +5,7 @@ services:
     repo: https://github.com/kujawad/q-url-api
     region: frankfurt # optional (defaults to oregon)
     plan: free # optional (defaults to starter)
-    branch: master # optional (uses repo default)
+    branch: native # optional (uses repo default)
     numInstances: 1 # optional (defaults to 1)
     healthCheckPath: /actuator/health
     envVars:
