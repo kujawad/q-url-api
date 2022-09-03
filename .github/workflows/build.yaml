@@ -1,7 +1,7 @@
 name: Build
 on:
   push:
-    branches: [master]
+    branches: [ master ]
   pull_request:
 jobs:
   build:
@@ -20,6 +20,14 @@ jobs:
         uses: actions/checkout@v3
       - name: Gradle Wrapper Validation
         uses: gradle/wrapper-validation-action@v1.0.4
+      - name: Setup GraalVM
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.2.0'
+          java-version: '17'
+          components: 'native-image'
+          #github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache: 'gradle'
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
@@ -39,8 +47,8 @@ jobs:
       - name: Run unit and integration tests
         run: ./gradlew build
       - name: Prepare files for Docker
-        if: ${{ github.event_name != 'pull_request' }}
-        run: ./gradlew docker
+        # if: ${{ github.event_name != 'pull_request' }}
+        run: ./gradlew nativeCompile
       - name: Set up QEMU
         if: ${{ github.event_name != 'pull_request' }}
         uses: docker/setup-qemu-action@v2

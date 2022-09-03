@@ -1,6 +1,4 @@
-FROM openjdk:17-alpine
-ARG DEPENDENCY=build/docker/dependency
-COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY ${DEPENDENCY}/META-INF /app/META-INF
-COPY ${DEPENDENCY}/BOOT-INF/classes /app
-ENTRYPOINT ["java","-cp","app:app/lib/*","com.qurlapi.qurlapi.QUrlApiApplication"]
+FROM amd64/alpine:3.16
+RUN apk add --no-cache gcompat libc6-compat zlib
+COPY build/native/nativeCompile/q-url-api /run/app
+CMD /run/app
