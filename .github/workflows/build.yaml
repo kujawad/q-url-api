@@ -21,19 +21,12 @@ jobs:
       - name: Gradle Wrapper Validation
         uses: gradle/wrapper-validation-action@v1.0.4
       - name: Setup GraalVM
-      - uses: graalvm/setup-graalvm@v1
+        uses: graalvm/setup-graalvm@v1
         with:
           version: '22.2.0'
           java-version: '17'
           components: 'native-image'
-          #github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'gradle'
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 17
-          cache: gradle
       - name: Setup Gradle Dependencies Cache
         uses: actions/cache@v3
         with:
@@ -47,7 +40,6 @@ jobs:
       - name: Run unit and integration tests
         run: ./gradlew build
       - name: Prepare files for Docker
-        # if: ${{ github.event_name != 'pull_request' }}
         run: ./gradlew nativeCompile
       - name: Set up QEMU
         if: ${{ github.event_name != 'pull_request' }}
@@ -68,7 +60,7 @@ jobs:
           file: src/main/docker/Dockerfile
           context: .
           push: true
-          tags: kujawad/q-url-api:latest
+          tags: kujawad/q-url-api:native
       - name: Deploy
         if: ${{ github.event_name != 'pull_request' }}
         run: |
