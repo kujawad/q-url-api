@@ -1,1 +1,1 @@
-FROM kujawad/q-url-api
+FROM kujawad/q-url-api:native
