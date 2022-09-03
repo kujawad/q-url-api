@@ -2,8 +2,7 @@ package com.qurlapi.qurlapi.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +13,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@ApiModel
+@Schema
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
@@ -22,14 +21,14 @@ import javax.validation.constraints.NotNull;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QUrlResponse {
 
-    @ApiModelProperty(value = "Url to shorten.", name = "url", required = true, example = "https://example.com")
+    @Schema(description = "Url to shorten.", name = "url", required = true, example = "https://example.com")
     @NotBlank(message = "Url is empty :v")
     private String url;
 
-    @ApiModelProperty(value = "Stamp for identifying shortened urls.", name = "stamp", example = "something")
+    @Schema(description = "Stamp for identifying shortened urls.", name = "stamp", example = "something")
     private String stamp;
 
-    @ApiModelProperty(value = "Usages for shortened url.", name = "usages", example = "30")
+    @Schema(description = "Usages for shortened url.", name = "usages", example = "30")
     @NotNull(message = "{qurl.usages.notnull}")
     @Min(value = 1, message = "{qurl.usages.min}")
     @Max(value = 128, message = "{qurl.usages.max}")

@@ -1,14 +1,15 @@
 plugins {
-    id 'org.springframework.boot' version '2.7.3'
+    id 'org.springframework.boot' version '2.7.1'
     id 'io.spring.dependency-management' version '1.0.13.RELEASE'
     id 'java'
     id 'org.liquibase.gradle' version '2.0.3'
     id 'org.unbroken-dome.test-sets' version '4.0.0'
     id "com.palantir.docker" version "0.34.0"
+    id 'org.springframework.experimental.aot' version '0.12.1'
 }
 
 group = 'com.q-url-api'
-version = '0.0.1-SNAPSHOT'
+version = '0.1.0-SNAPSHOT'
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
@@ -22,6 +23,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://repo.spring.io/release") }
 }
 
 testSets {
@@ -53,6 +55,14 @@ liquibase {
     runList 'local'
 }
 
+bootBuildImage {
+    builder = "paketobuildpacks/builder:tiny"
+    environment = [
+            "BP_NATIVE_IMAGE": "true"
+    ]
+    imageName = "kujawad/q-url-api:latest"
+}
+
 dependencies {
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -61,7 +71,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // Swagger
-    implementation 'io.springfox:springfox-boot-starter:3.0.0'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.11'
+    implementation 'org.springdoc:springdoc-openapi-native:1.6.11'
+    //implementation 'io.springfox:springfox-boot-starter:3.0.0'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
@@ -71,11 +83,11 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
 
     // Liquibase
-    implementation 'org.liquibase:liquibase-core'
+    /*implementation 'org.liquibase:liquibase-core'
     liquibaseRuntime 'org.liquibase:liquibase-core'
     liquibaseRuntime 'org.yaml:snakeyaml'
     liquibaseRuntime 'ch.qos.logback:logback-core'
-    liquibaseRuntime 'ch.qos.logback:logback-classic'
+    liquibaseRuntime 'ch.qos.logback:logback-classic'*/
     liquibaseRuntime 'org.postgresql:postgresql'
 
     // Apache
@@ -103,7 +115,6 @@ task unpack(type: Copy) {
 docker {
     name = "kujawad/q-url-api"
     dockerfile = file('src/main/docker/Dockerfile')
-    //copySpec.from(tasks.unpack.outputs).into("dependency")
     buildArgs(['DEPENDENCY': "dependency"])
 }
 

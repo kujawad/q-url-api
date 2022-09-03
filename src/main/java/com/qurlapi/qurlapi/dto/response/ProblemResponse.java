@@ -7,8 +7,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.qurlapi.qurlapi.exception.problem.ApplicationProblem;
 import com.qurlapi.qurlapi.exception.validation.ValidationError;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +18,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-@ApiModel
+@Schema
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
@@ -28,23 +27,23 @@ import java.util.Map;
 @JsonNaming(PropertyNamingStrategies.KebabCaseStrategy.class)
 public class ProblemResponse implements ApplicationProblem {
 
-    @ApiModelProperty(value = "Exception type.", name = "type", example = "stamp-not-exists")
+    @Schema(description = "Exception type.", name = "type", example = "stamp-not-exists")
     private URI type;
 
-    @ApiModelProperty(value = "Status of exception response.", name = "status", example = "400")
+    @Schema(description = "Status of exception response.", name = "status", example = "400")
     private Integer status;
 
-    @ApiModelProperty(value = "Exception title.", name = "title", example = "Stamp does not exists!")
+    @Schema(description = "Exception title.", name = "title", example = "Stamp does not exists!")
     private String title;
 
-    @ApiModelProperty(value = "Exception details.", name = "message",
+    @Schema(description = "Exception details.", name = "message",
                       example = "Stamp with identifier d8f6a3SDF does not exists!")
     private String message;
 
-    @ApiModelProperty(value = "Problem extensions", name = "extensions", example = "{}")
+    @Schema(description = "Problem extensions", name = "extensions", example = "{}")
     private Map<String, Object> extensions;
 
-    @ApiModelProperty(value = "List of validation errors.", name = "validationErrors", example = "[]")
+    @Schema(description = "List of validation errors.", name = "validationErrors", example = "[]")
     private List<ValidationError> validationErrors;
 
     public ProblemResponse(final HttpStatus httpStatus) {

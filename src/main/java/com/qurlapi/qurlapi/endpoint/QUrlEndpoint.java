@@ -7,14 +7,16 @@ import com.qurlapi.qurlapi.dto.response.ProblemResponse;
 import com.qurlapi.qurlapi.dto.response.QUrlResponse;
 import com.qurlapi.qurlapi.model.QUrl;
 import com.qurlapi.qurlapi.service.QUrlService;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -28,9 +30,7 @@ public class QUrlEndpoint {
     private final QUrlService qUrlService;
 
     @CrossOrigin
-    @ApiResponses(value = {@ApiResponse(code = 200, response = QUrlResponse.class,
-                                        message = "Returns list of all quick urls in database.",
-                                        responseContainer = "List")})
+    @ApiResponse(responseCode = "200", useReturnTypeSchema = true, description = "Returns list of all quick urls.")
     @GetMapping(path = {"/urls"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.OK)
     public List<QUrlResponse> urls() {
@@ -38,10 +38,10 @@ public class QUrlEndpoint {
     }
 
     @CrossOrigin
-    @ApiResponses(
-            value = {@ApiResponse(code = 201, response = QUrlResponse.class, message = "Returns QUrlResponse object."),
-                     @ApiResponse(code = 403, response = ProblemResponse.class,
-                                  message = "Validation of request body failed.")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", useReturnTypeSchema = true, description = "Returns QUrlResponse object"),
+            @ApiResponse(responseCode = "403", description = "Validation of request body failed.",
+                         content = @Content(schema = @Schema(implementation = ProblemResponse.class)))})
     @PostMapping(produces = MimeTypeUtils.APPLICATION_JSON_VALUE, consumes = MimeTypeUtils.APPLICATION_JSON_VALUE,
                  path = {"/urls"})
     @ResponseStatus(value = HttpStatus.CREATED)
@@ -51,12 +51,15 @@ public class QUrlEndpoint {
     }
 
     @CrossOrigin
-    @ApiResponses(
-            value = {@ApiResponse(code = 200, response = LinkResponse.class, message = "Returns LinkResponse object."),
-                     @ApiResponse(code = 400, response = ProblemResponse.class,
-                                  message = "Bad request. Validation of path parameter failed."),
-                     @ApiResponse(code = 404, response = ProblemResponse.class,
-                                  message = "Not found. Stamp doesn't exists.")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", useReturnTypeSchema = true, description = "Returns LinkResponse object"),
+
+            @ApiResponse(responseCode = "400",
+                         content = @Content(schema = @Schema(implementation = ProblemResponse.class)),
+                         description = "Bad request. Validation of path parameter failed."),
+            @ApiResponse(responseCode = "404",
+                         content = @Content(schema = @Schema(implementation = ProblemResponse.class)),
+                         description = "Not found. Stamp doesn't exists.")})
     @GetMapping(path = {"/urls/{stamp}"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.OK)
     public LinkResponse getLink(@NotNull @PathVariable final String stamp) {
@@ -65,8 +68,7 @@ public class QUrlEndpoint {
     }
 
     // TODO: JWT authentication for this endpoint
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Removes all quick urls.")})
-    @ApiIgnore
+    @Hidden
     @GetMapping(path = {"/purge"})
     public void purge() {
         qUrlService.purge();
