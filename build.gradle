@@ -2,9 +2,10 @@ plugins {
     id 'org.springframework.boot' version '2.7.1'
     id 'io.spring.dependency-management' version '1.0.13.RELEASE'
     id 'java'
+    id 'jacoco'
     id 'org.liquibase.gradle' version '2.1.1'
     id 'org.unbroken-dome.test-sets' version '4.0.0'
-    id "com.palantir.docker" version "0.34.0"
+    id 'com.palantir.docker' version '0.34.0'
     id 'org.springframework.experimental.aot' version '0.12.1'
 }
 
@@ -72,9 +73,9 @@ liquibase {
 }
 
 bootBuildImage {
-    builder = "paketobuildpacks/builder:tiny"
-    environment = ["BP_NATIVE_IMAGE": "true"]
-    imageName = "kujawad/q-url-api:latest"
+    builder = 'paketobuildpacks/builder:tiny'
+    environment = ['BP_NATIVE_IMAGE': 'true']
+    imageName = 'kujawad/q-url-api:latest'
 }
 
 dependencies {
@@ -118,19 +119,47 @@ tasks.withType(Test) {
     useJUnitPlatform()
 }
 
+test {
+    jacoco {
+        classDumpDir = file('build/jacoco/unitTestDumps')
+        destinationFile = file('build/jacoco/unitTest.exec')
+    }
+}
+
+integrationTest {
+    outputs.upToDateWhen { false }
+    jacoco {
+        classDumpDir = file('build/jacoco/integrationTestDumps')
+        destinationFile = file('build/jacoco/integrationTest.exec')
+    }
+}
+
 task unpack(type: Copy) {
     from(zipTree(tasks.bootJar.outputs.files.singleFile))
     into 'build/docker/dependency'
 }
 
 docker {
-    name = "kujawad/q-url-api"
+    name = 'kujawad/q-url-api'
     dockerfile = file('src/main/docker/Dockerfile')
-    buildArgs(['DEPENDENCY': "dependency"])
+    buildArgs(['DEPENDENCY': 'dependency'])
 }
 
 task local {
     bootRun { systemProperty 'spring.profiles.active', 'local' }
+}
+
+jacocoTestReport {
+    def jacocoDir = file("${project.buildDir}/jacoco")
+    def jacocoExecs = new ArrayList<>()
+
+    if (jacocoDir.exists()) {
+        jacocoExecs = files(jacocoDir.listFiles()).filter {
+            File f -> f.name.endsWith(".exec")
+        }.collect()
+    }
+    executionData(jacocoExecs)
+    dependsOn test, integrationTest
 }
 
 bootRun.mustRunAfter local
