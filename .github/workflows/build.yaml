@@ -7,9 +7,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.properties.outputs.version }}
-      changelog: ${{ steps.properties.outputs.changelog }}
     steps:
       - name: Maximize Build Space
         run: |
@@ -61,6 +58,9 @@ jobs:
           context: .
           push: true
           tags: kujawad/q-url-api:native
+      - name: Migrate database
+        if: ${{ github.event_name != 'pull_request' }}
+        run: ./gradlew update -PrunList=prod
       - name: Deploy
         if: ${{ github.event_name != 'pull_request' }}
         run: |
