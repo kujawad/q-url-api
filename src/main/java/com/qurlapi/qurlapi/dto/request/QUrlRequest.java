@@ -29,8 +29,7 @@ public class QUrlRequest {
     private String stamp;
 
     @Schema(description = "Usages for shortened url.", name = "usages", example = "30")
-    @NotNull(message = "{qurl.usages.not-null}")
     @Min(value = ConstraintConstants.QUrlRequest.USAGES_MIN_LENGTH, message = "{qurl.usages.min}")
     @Max(value = ConstraintConstants.QUrlRequest.USAGES_MAX_LENGTH, message = "{qurl.usages.max}")
-    private int usages;
+    private Integer usages;
 }

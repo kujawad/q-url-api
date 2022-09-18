@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -39,11 +40,11 @@ public class QUrlService {
         }
 
         final String url = request.getUrl();
-        final int usages = request.getUsages();
+        final Integer usages = request.getUsages();
 
         final QUrl.Builder builder = new QUrl.Builder().withUrl(url)
                                                        .withStamp(stamp)
-                                                       .withUsages(usages);
+                                                       .withUsages(Objects.requireNonNullElse(usages, 3));
 
         if (!StringUtils.hasText(stamp)) {
             builder.withStamp(RandomStringUtils.randomAlphanumeric(ConstraintConstants.QUrl.STAMP_DEFAULT_LENGTH));

@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 public final class ConstraintConstants {
 
     public static final class QUrl {
-        public static final int USAGES_MIN_LENGTH = 1;
-
         public static final int STAMP_DEFAULT_LENGTH = 7;
 
         public static final int STAMP_MAX_LENGTH = 64;

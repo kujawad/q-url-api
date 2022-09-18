@@ -9,7 +9,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import java.util.UUID;
 
 @Entity
@@ -32,7 +31,6 @@ public class QUrl {
 
     @Getter
     @Column(name = "usages")
-    @Min(ConstraintConstants.QUrl.USAGES_MIN_LENGTH)
     @Max(ConstraintConstants.QUrl.USAGES_MAX_LENGTH)
     private int usages;
 
