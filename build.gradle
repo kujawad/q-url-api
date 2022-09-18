@@ -51,7 +51,8 @@ liquibase {
         }
         local {
             changeLogFile 'src/main/resources/db/changelog/db.changelog-master.yaml'
-            url 'jdbc:postgresql://localhost:5432/q-url-api'
+            defaultSchemaName 'q-url-api'
+            url 'jdbc:postgresql://localhost:5432/q-url-api?currentSchema=q-url-api'
             username 'postgres'
             password 'postgres'
             driver 'org.postgresql.Driver'
@@ -59,6 +60,7 @@ liquibase {
         }
         prod {
             changeLogFile 'src/main/resources/db/changelog/db.changelog-master.yaml'
+            defaultSchemaName 'q-url-api'
             url System.getenv('JDBC_DATABASE_URL')
             username System.getenv('JDBC_DATABASE_USERNAME')
             password System.getenv('JDBC_DATABASE_PASSWORD')
@@ -94,7 +96,7 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
 
     // Liquibase
-    liquibaseRuntime 'org.liquibase:liquibase-core:4.16.0'
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.4.3'
     liquibaseRuntime 'org.yaml:snakeyaml:1.32'
     liquibaseRuntime 'info.picocli:picocli:4.6.3'
     liquibaseRuntime 'org.postgresql:postgresql'

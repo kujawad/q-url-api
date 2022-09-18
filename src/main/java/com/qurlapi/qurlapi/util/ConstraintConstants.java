@@ -13,7 +13,7 @@ public final class ConstraintConstants {
 
         public static final int STAMP_MAX_LENGTH = 64;
         public static final int USAGES_MAX_LENGTH = 128;
-        public static final int URL_MAX_LENGTH = 256;
+        public static final int URL_MAX_LENGTH = 1024;
     }
 
     public static final class QUrlRequest {
