@@ -60,9 +60,9 @@ public class QUrlEndpoint {
             @ApiResponse(responseCode = "404",
                          content = @Content(schema = @Schema(implementation = ProblemResponse.class)),
                          description = "Not found. Stamp doesn't exists.")})
-    @GetMapping(path = {"/urls/{stamp}"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+    @GetMapping(path = {"/urls/{stamp}/generate"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.OK)
-    public LinkResponse getLink(@NotNull @PathVariable final String stamp) {
+    public LinkResponse generate(@NotNull @PathVariable final String stamp) {
         return new LinkResponse(qUrlService.useLink(stamp)
                                            .getUrl());
     }

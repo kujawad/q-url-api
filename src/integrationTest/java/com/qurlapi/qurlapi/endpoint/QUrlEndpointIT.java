@@ -199,7 +199,7 @@ public class QUrlEndpointIT {
         qUrlRepository.save(qUrl);
 
         // when
-        final ResponseEntity<LinkResponse> response = get(URL + "/" + qUrl.getStamp(), LinkResponse.class);
+        final ResponseEntity<LinkResponse> response = get(URL + "/" + qUrl.getStamp() + "/generate", LinkResponse.class);
 
         // then
         final HttpStatus actualStatus = response.getStatusCode();
@@ -217,7 +217,7 @@ public class QUrlEndpointIT {
         final HttpStatus expectedStatus = HttpStatus.NOT_FOUND;
 
         // when
-        final ResponseEntity<String> response = get(URL + "/" + stamp, String.class);
+        final ResponseEntity<String> response = get(URL + "/" + stamp + "/generate", String.class);
 
         // then
         assertThat(response.getStatusCode()).isEqualTo(expectedStatus);
