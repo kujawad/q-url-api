@@ -9,8 +9,15 @@ databaseChangeLog:
       dbms: postgresql
   - logicalFilePath: classpath:db/changelog/db.changelog-master.yaml
   - changeSet:
-      id: 1
-      author: daniel
+      id: "Q-URL-API-1"
+      author: kujawad
+      changes:
+        - sql:
+            dbms: 'postgresql'
+            sql: 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp" SCHEMA "q-url-api";'
+  - changeSet:
+      id: "Q-URL-API-2"
+      author: kujawad
       changes:
         - createTable:
             tableName: urls
@@ -25,11 +32,11 @@ databaseChangeLog:
                     unique: true
               - column:
                   name: url
-                  type: varchar(255)
+                  type: varchar(1024)
                   constraints:
                     nullable: false
   - changeSet:
-      id: 2
+      id: "Q-URL-API-3"
       author: daniel
       changes:
         - addColumn:
@@ -41,7 +48,7 @@ databaseChangeLog:
                   constraints:
                     nullable: true
   - changeSet:
-      id: 3
+      id: "Q-URL-API-4"
       author: daniel
       changes:
         - addColumn:
