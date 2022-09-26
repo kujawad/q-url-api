@@ -162,8 +162,13 @@ jacocoTestReport {
     dependsOn test, integrationTest
 }
 
+task deleteLiquibaseUpdateDir(type: Delete) {
+    delete "${project.buildDir}/native/agent-output/update"
+}
+
 bootRun.mustRunAfter local
 
+update.dependsOn deleteLiquibaseUpdateDir
 unpack.dependsOn bootJar
 docker.dependsOn unpack
 check.dependsOn integrationTest
